@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "cep-promise": "^4.4.1"
+  }
+}
