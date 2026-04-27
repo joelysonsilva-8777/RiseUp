@@ -1,79 +1,107 @@
-🛒 AcessE+ - Página de Produto
+# Tela Produto — Acess E+
 
-Projeto de uma página de produto moderna desenvolvida em React, com foco em acessibilidade, usabilidade e experiência do usuário.
+Componente React da página de produto desenvolvido para o projeto da faculdade.
 
-🚀 Funcionalidades
-🖼️ Galeria de imagens com seleção por thumbnails
-🛒 Adição de produtos ao carrinho com feedback visual
-📦 Cálculo de frete por CEP (usando API)
-💳 Cálculo automático de preço e parcelamento
-🔍 Interface responsiva e moderna
-📱 Layout adaptado para mobile
-🧠 Tecnologias utilizadas
-React.js
-JavaScript (ES6+)
-CSS3
-Biblioteca cep-promise para busca de CEP
-📦 Instalação
+## Arquivos
 
-Clone o repositório:
+| Arquivo | Descrição |
+|---|---|
+| `ProdutoPage.jsx` | Componente principal da tela |
+| `ProdutoPage.css` | Estilos do componente |
+| `App.jsx` | Exemplo de integração |
 
-git clone https://github.com/seu-usuario/seu-repo.git
+## Como rodar localmente
 
-Acesse a pasta:
+```bash
+# 1. Certifique-se de ter um projeto React criado (Vite recomendado)
+npm create vite@latest meu-projeto -- --template react
+cd meu-projeto
 
-cd seu-repo
+# 2. Copie os arquivos ProdutoPage.jsx e ProdutoPage.css para src/
 
-Instale as dependências:
-
+# 3. Instale as dependências e rode
 npm install
-▶️ Rodando o projeto
-npm start
+npm run dev
+```
 
-O projeto estará disponível em:
+## Como integrar com as outras telas
 
-http://localhost:3000
-📁 Estrutura de imagens
+O componente aceita três **props** para se conectar ao resto do projeto:
 
-As imagens do produto devem ser colocadas na pasta:
+### `cartCount` (number)
+Quantidade de itens no carrinho. Vem do estado global do projeto.
 
-public/images/
+```jsx
+<ProdutoPage cartCount={cartCount} />
+```
 
-Exemplo:
+### `onAddToCart` (function)
+Chamada quando o usuário clica em "Adicionar ao Carrinho".
+Recebe a **quantidade** selecionada como argumento.
 
-public/images/img1.webp
-public/images/img2.webp
-public/images/img3.webp
-📌 Funcionalidade de frete
+```jsx
+const handleAddToCart = (qty) => {
+  // atualizar estado global do carrinho
+  dispatch({ type: "ADD_ITEM", payload: { product, qty } });
+};
+<ProdutoPage onAddToCart={handleAddToCart} />
+```
 
-O cálculo de frete é feito com base no CEP informado pelo usuário, utilizando a biblioteca cep-promise.
+### `onNavigate` (function)
+Chamada quando qualquer botão de navegação é clicado.
+Recebe o **destino** como string.
 
-O sistema identifica:
+```jsx
+import { useNavigate } from "react-router-dom";
 
-Cidade
-Estado
-Região de entrega
+const navigate = useNavigate();
 
-E calcula automaticamente:
+const handleNavigate = (destination) => {
+  navigate(`/${destination}`);
+};
 
-💰 Preço do frete
-⏱️ Prazo de entrega
-🎯 Objetivo
+<ProdutoPage onNavigate={handleNavigate} />
+```
 
-Este projeto foi desenvolvido para simular uma página de produto de e-commerce profissional, aplicando boas práticas de:
+#### Destinos possíveis
 
-Componentização
-UX/UI
-Integração com APIs
-Organização de código
-📸 Preview
+| String recebida | Descrição |
+|---|---|
+| `"cart"` | Página do carrinho |
+| `"profile"` | Perfil do usuário |
+| `"notifications"` | Notificações |
+| `"departamentos"` | Departamentos |
+| `"endereco"` | Endereço de entrega |
+| `"cupons"` | Meus cupons |
+| `"ofertas"` | Ofertas exclusivas |
+| `"avaliacoes"` | Avaliações do produto |
+| `"mais-informacoes"` | Mais informações do produto |
+| `"buscar-cep"` | Busca de CEP |
+| `"whatsapp"` | WhatsApp da loja |
 
-(Adicione prints aqui depois)
+## Funcionalidades implementadas
 
-📄 Licença
+- [x] Galeria de imagens com miniaturas clicáveis
+- [x] Seletor de quantidade com atualização de preço e parcelas
+- [x] Botão "Adicionar ao Carrinho" com feedback visual
+- [x] Badge no ícone do carrinho com animação
+- [x] Toast de confirmação
+- [x] Cálculo de frete com validação de CEP
+- [x] Todos os botões de navegação prontos para receber rotas
+- [x] Layout responsivo (mobile/desktop)
 
-Este projeto é de uso livre para fins de estudo e portfólio.
+## CEPs de teste
 
-👨‍💻 Autor
+| CEP | Cidade |
+|---|---|
+| 01001-000 | São Paulo - SP |
+| 20040-020 | Rio de Janeiro - RJ |
+| 30112-010 | Belo Horizonte - MG |
+| 40010-010 | Salvador - BA |
+| 50010-230 | Recife - PE |
+| 60010-000 | Fortaleza - CE |
+| 70002-900 | Brasília - DF |
+| 80010-010 | Curitiba - PR |
+| 90010-280 | Porto Alegre - RS |
 
-Kayo Fernando
+> 
