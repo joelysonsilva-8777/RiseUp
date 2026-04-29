@@ -24,7 +24,7 @@ const CategoriesSection = () => (
     <div className="mx-auto w-[calc(100%-70px)] max-w-[1325px]">
       <h2 className="text-[25px] leading-[30px] text-[#071735]">Categorias</h2>
       <MobileCategoriesCarousel />
-      <div className="mt-3 grid grid-cols-[minmax(220px,274px)_repeat(7,minmax(0,1fr))] gap-x-[31px] gap-y-[17px]">
+      <div className="mt-3 hidden grid-cols-[minmax(220px,274px)_repeat(7,minmax(0,1fr))] gap-x-[31px] gap-y-[17px] md:grid">
         {categories.map((category, index) => (
           <article className={`min-w-0 ${index === 0 ? "row-span-2" : ""}`} key={category}>
             <div
@@ -84,7 +84,7 @@ const MobileCategoriesCarousel = () => {
   };
 
   return (
-    <div className="lg:hidden">
+    <div className="md:hidden">
       <div className="mt-4 flex items-center justify-between gap-3">
         <button
           aria-label="Ver categorias anteriores"
