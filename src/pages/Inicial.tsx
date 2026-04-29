@@ -20,7 +20,7 @@ const Inicial = () => {
       <ProductsSection className="mt-[38px]" />
 
       <section
-        className={`mx-auto mt-[56px] w-[calc(100%-70px)] max-w-[1312px] overflow-hidden rounded-[24px] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.07)] ${
+        className={`mx-auto mt-[56px] w-[calc(100%-24px)] max-w-[1312px] overflow-hidden rounded-[24px] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.07)] sm:w-[calc(100%-70px)] ${
           !loading && user ? "px-0 py-0" : "px-6 py-8 md:px-10 md:py-10"
         }`}
         id="cupons"

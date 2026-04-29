@@ -171,16 +171,18 @@ const AccessibilityPanel = ({ firstToggleActive = false }: { firstToggleActive?:
 export const AuthLayout = ({ children, firstToggleActive = false }: AuthLayoutProps) => (
   <main className="min-h-screen w-full overflow-x-hidden bg-[#edfdec] font-['Montserrat',sans-serif] text-[#071735] [&_h1]:m-0 [&_h2]:m-0 [&_h3]:m-0 [&_p]:m-0">
     <AppHeader showNav={false} />
-    <section className="grid min-h-[801px] w-full grid-cols-[minmax(520px,51.2%)_minmax(430px,1fr)]">
-      <AccessibilityPanel firstToggleActive={firstToggleActive} />
-      <section className="relative flex min-w-0 items-center justify-center overflow-hidden bg-black px-8 py-12">
+    <section className="grid min-h-[801px] w-full grid-cols-1 lg:grid-cols-[minmax(520px,51.2%)_minmax(430px,1fr)]">
+      <div className="hidden lg:block">
+        <AccessibilityPanel firstToggleActive={firstToggleActive} />
+      </div>
+      <section className="relative flex min-w-0 items-center justify-center overflow-hidden bg-black px-4 py-8 sm:px-8 sm:py-12">
         <img
           className="absolute inset-0 h-full w-full object-cover"
           alt=""
           src="/image-132@2x.png"
         />
         <div className="absolute inset-0 bg-black/65" />
-        <div className="relative z-10 flex w-full -translate-y-[32px] justify-center">
+        <div className="relative z-10 flex w-full justify-center lg:-translate-y-[32px]">
           {children}
         </div>
       </section>

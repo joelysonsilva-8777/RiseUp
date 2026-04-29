@@ -6,13 +6,15 @@ import { useAuth } from "../context/AuthContext";
 const HeaderIconButton = ({
   children,
   label,
+  className = "",
 }: {
   children: ReactNode;
   label: string;
+  className?: string;
 }) => (
   <button
     aria-label={label}
-    className="flex h-9 w-9 shrink-0 items-center justify-center border-0 bg-transparent p-0 text-white"
+    className={`flex h-9 w-9 shrink-0 items-center justify-center border-0 bg-transparent p-0 text-white ${className}`}
     type="button"
   >
     {children}
@@ -134,11 +136,11 @@ export const AppHeader = ({ showNav = true }: AppHeaderProps) => {
 
       <div className="flex h-[78px] w-full items-center bg-[#167307] px-[14px] text-white">
         <Link className="shrink-0 no-underline" to="/" aria-label="Ir para a página inicial">
-          <img className="h-[37px] w-[135px] object-contain" alt="Acesse+" src="/Group-56.svg" />
+          <img className="h-[30px] w-[95px] object-contain sm:h-[37px] sm:w-[135px]" alt="Acesse+" src="/Group-56.svg" />
         </Link>
 
         <a
-          className="ml-[25px] flex w-[132px] shrink-0 items-center gap-[6px] text-white no-underline"
+          className="hidden ml-[25px] w-[132px] shrink-0 items-center gap-[6px] text-white no-underline md:flex"
           href="https://wa.me/5581911112222"
           target="_blank"
           rel="noreferrer"
@@ -151,11 +153,11 @@ export const AppHeader = ({ showNav = true }: AppHeaderProps) => {
         </a>
 
         <form
-          className="ml-[6px] flex h-10 w-[clamp(360px,55vw,772px)] min-w-0 shrink items-center rounded-[10px] bg-[#ecf8e8] px-[22px]"
+          className="ml-[6px] flex h-10 min-w-0 flex-1 items-center rounded-[10px] bg-[#ecf8e8] px-[14px] md:w-[clamp(360px,55vw,772px)] md:px-[22px]"
           onSubmit={(event) => event.preventDefault()}
           role="search"
         >
-          <img className="h-6 w-6 shrink-0" alt="" src="/Magnifier.svg" />
+          <img className="h-5 w-5 shrink-0 md:h-6 md:w-6" alt="" src="/Magnifier.svg" />
           <label className="sr-only" htmlFor="header-search">
             Buscar na Acesse+
           </label>
@@ -181,8 +183,8 @@ export const AppHeader = ({ showNav = true }: AppHeaderProps) => {
           </div>
         </form>
 
-        <div className="ml-auto flex shrink-0 items-center gap-[18px]">
-          <HeaderIconButton label="Notificações">
+        <div className="ml-auto flex shrink-0 items-center gap-3 md:gap-[18px]">
+          <HeaderIconButton label="Notificações" className="hidden md:flex">
             <BellIcon />
           </HeaderIconButton>
 
@@ -201,7 +203,7 @@ export const AppHeader = ({ showNav = true }: AppHeaderProps) => {
                     <FiUser size={18} />
                   )}
                 </span>
-                <span className="min-w-0">
+                <span className="min-w-0 hidden sm:block">
                   <span className="block text-[11px] leading-[13px] text-white/70">Olá,</span>
                   <span className="block max-w-[150px] truncate text-[14px] leading-[18px] text-white">
                     {firstName || "Usuário"}
@@ -228,15 +230,15 @@ export const AppHeader = ({ showNav = true }: AppHeaderProps) => {
               <span className="flex h-8 w-8 items-center justify-center bg-[#ecf8e8] text-[#167307]">
                 <UserIcon />
               </span>
-              <span className="text-[14px] leading-[18px] text-white">Entrar</span>
+              <span className="hidden text-[14px] leading-[18px] text-white sm:inline">Entrar</span>
             </Link>
           )}
 
-          <Link
-            aria-label="Carrinho"
-            className="flex h-9 w-9 items-center justify-center text-white no-underline"
-            to="/carrinho"
-          >
+            <Link
+              aria-label="Carrinho"
+              className="flex h-9 w-9 items-center justify-center text-white no-underline"
+              to="/carrinho"
+            >
             <CartIcon />
           </Link>
         </div>

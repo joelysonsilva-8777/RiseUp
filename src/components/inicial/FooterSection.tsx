@@ -33,7 +33,7 @@ const footerSections = [
 
 const FooterSection = () => (
   <footer className="mt-[78px] w-full border-t border-white/8 bg-[#0f1e18] text-white">
-    <div className="mx-auto grid w-[calc(100%-70px)] max-w-[1325px] gap-10 px-0 py-[56px] lg:grid-cols-[1.2fr_1fr_1fr_1fr]">
+    <div className="mx-auto grid w-[calc(100%-24px)] max-w-[1325px] gap-10 px-0 py-[40px] sm:w-[calc(100%-70px)] sm:py-[56px] lg:grid-cols-[1.2fr_1fr_1fr_1fr]">
       <section className="max-w-[420px]">
         <img className="h-[42px] w-[155px] object-contain" alt="Acesse+" src="/Group-561.svg" />
         <p className="mt-5 text-[15px] leading-[24px] text-white/78">
@@ -74,7 +74,7 @@ const FooterSection = () => (
     </div>
 
     <div className="border-t border-white/10">
-      <div className="mx-auto flex w-[calc(100%-70px)] max-w-[1325px] flex-col gap-6 px-0 py-6 lg:flex-row lg:items-center lg:justify-between">
+      <div className="mx-auto flex w-[calc(100%-24px)] max-w-[1325px] flex-col gap-6 px-0 py-6 sm:w-[calc(100%-70px)] lg:flex-row lg:items-center lg:justify-between">
         <div>
           <p className="text-[14px] leading-[20px] text-white/62">Baixe o app e acompanhe suas ofertas onde estiver.</p>
           <div className="mt-3 flex flex-wrap gap-3">
@@ -103,7 +103,7 @@ const FooterSection = () => (
     </div>
 
     <div className="border-t border-white/8 bg-[#0b1712]">
-      <div className="mx-auto flex w-[calc(100%-70px)] max-w-[1325px] flex-col gap-3 px-0 py-4 text-[12px] leading-[18px] text-white/48 md:flex-row md:items-center md:justify-between">
+      <div className="mx-auto flex w-[calc(100%-24px)] max-w-[1325px] flex-col gap-3 px-0 py-4 text-[12px] leading-[18px] text-white/48 sm:w-[calc(100%-70px)] md:flex-row md:items-center md:justify-between">
         <p>© 2026 Acesse+. Todos os direitos reservados.</p>
         <p>Comprar com clareza, vender com confiança e acessar com autonomia.</p>
       </div>
