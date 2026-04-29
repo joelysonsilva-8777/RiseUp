@@ -18,23 +18,23 @@ const categories = [
 
 const CategoriesSection = () => (
   <section className="mt-[78px] w-full bg-[#e8e8e8] pb-[53px] pt-[16px]" id="categorias">
-    <div className="mx-auto w-[calc(100%-24px)] max-w-[1325px] sm:w-[calc(100%-70px)]">
-      <h2 className="text-[20px] leading-[24px] text-[#071735] sm:text-[25px] sm:leading-[30px]">Categorias</h2>
-      <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-x-[31px] sm:gap-y-[17px] lg:grid-cols-[minmax(220px,274px)_repeat(7,minmax(0,1fr))]">
+    <div className="mx-auto w-[calc(100%-70px)] max-w-[1325px]">
+      <h2 className="text-[25px] leading-[30px] text-[#071735]">Categorias</h2>
+      <div className="mt-3 grid grid-cols-[minmax(220px,274px)_repeat(7,minmax(0,1fr))] gap-x-[31px] gap-y-[17px]">
         {categories.map((category, index) => (
-          <article className={`min-w-0 ${index === 0 ? "lg:row-span-2" : ""}`} key={category}>
+          <article className={`min-w-0 ${index === 0 ? "row-span-2" : ""}`} key={category}>
             <div
               className={
                 index === 0
-                  ? "h-[160px] rounded-[5px] bg-white sm:h-[239px]"
+                  ? "h-[239px] rounded-[5px] bg-white"
                   : "h-[104px] rounded-[5px] bg-white"
               }
             />
             <h3
               className={
                 index === 0
-                  ? "mt-[10px] break-words text-[13px] leading-[17px] text-[#071735] sm:text-[16px] sm:leading-[19px]"
-                  : "mt-[9px] break-words text-[10px] leading-[12px] text-[#071735] sm:text-[11px] sm:leading-[13px]"
+                  ? "mt-[10px] break-words text-[16px] leading-[19px] text-[#071735]"
+                  : "mt-[9px] break-words text-[11px] leading-[13px] text-[#071735]"
               }
             >
               {category}
