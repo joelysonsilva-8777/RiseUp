@@ -1,6 +1,7 @@
 import { type FunctionComponent } from "react";
 import { Link } from "react-router-dom";
 import { AppHeader } from "../components/AppHeader";
+import { useAuth } from "../context/AuthContext";
 
 const products = [
   { name: "Samsung Galaxy A5 - Branco", oldPrice: "R$ 750", price: "R$ 700" },
@@ -168,18 +169,60 @@ const ProductSection = ({
   </section>
 );
 
+const AuthenticatedPromo = () => (
+  <article className="relative min-h-[280px] overflow-hidden rounded-[10px] bg-black text-white shadow-[0_2px_8px_rgba(0,0,0,0.07)]">
+    <img
+      className="absolute inset-0 h-full w-full object-cover object-[78%_center]"
+      alt=""
+      src="/Fundo.png"
+    />
+    <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.9)_0%,rgba(0,0,0,0.8)_38%,rgba(0,0,0,0.42)_64%,rgba(0,0,0,0.12)_100%)]" />
+    <div className="relative z-10 grid min-h-[280px] gap-6 px-5 py-5 sm:px-6 sm:py-6 [@media(min-width:1051px)]:grid-cols-[minmax(0,1fr)_minmax(380px,460px)] [@media(min-width:1051px)]:items-start [@media(min-width:1051px)]:px-8 [@media(min-width:1051px)]:py-7">
+      <div className="max-w-[480px]">
+        <h2 className="text-[26px] leading-[32px] text-white sm:text-[30px] sm:leading-[36px]">
+          Saiba mais sobre acessibilidade
+        </h2>
+        <p className="mt-4 max-w-[420px] text-[14px] leading-[22px] text-white/80 sm:text-[15px] sm:leading-[24px]">
+          Veja um conteúdo curto sobre recursos e soluções que tornam a experiência mais clara e acessível.
+        </p>
+
+        <div className="mt-6 inline-flex rounded-full bg-[#167307] px-4 py-2 shadow-[0_8px_24px_rgba(0,0,0,0.28)]">
+          <img className="h-[24px] w-auto object-contain" alt="Acesse+" src="/Group-561.svg" />
+        </div>
+      </div>
+
+      <div className="w-full max-w-[460px] justify-self-end self-start [@media(min-width:1051px)]:ml-auto">
+        <div className="overflow-hidden rounded-[18px] border border-white/15 bg-black/35 shadow-[0_18px_50px_rgba(0,0,0,0.38)] backdrop-blur-[2px]">
+          <video
+            className="block aspect-video h-auto w-full bg-black"
+            controls
+            playsInline
+            preload="metadata"
+            src="/Elizabeth.mp4"
+          >
+            Seu navegador não suporta a reprodução de vídeo.
+          </video>
+        </div>
+      </div>
+    </div>
+  </article>
+);
+
 const Inicial: FunctionComponent = () => {
+  const { user, loading } = useAuth();
+
   return (
     <main className="min-h-screen w-full overflow-x-hidden bg-[#f3f3f3] font-['Montserrat',sans-serif] text-[#071735] [&_h1]:m-0 [&_h2]:m-0 [&_h3]:m-0 [&_p]:m-0">
       <AppHeader />
 
-      <section className="relative h-[320px] w-full overflow-visible bg-black">
+      <section className="relative h-[390px] w-full overflow-visible bg-black">
         <img
           className="absolute inset-0 h-full w-full object-cover"
           alt=""
           src="/image-132@2x.png"
         />
         <div className="absolute inset-0 bg-black/20" />
+        <div className="absolute inset-x-0 bottom-0 z-[1] h-[140px] bg-gradient-to-b from-transparent via-[#f3f3f3]/45 to-[#f3f3f3]" />
         <div className="relative z-10 mx-auto flex h-[230px] w-full max-w-[720px] flex-col items-center pt-[24px] text-center text-white">
           <p className="text-[30px] leading-[36px]">Bem-vindo a</p>
           <img
@@ -262,46 +305,54 @@ const Inicial: FunctionComponent = () => {
       <ProductSection className="mt-[38px]" />
 
       <section
-        className="mx-auto mt-[56px] w-[calc(100%-70px)] max-w-[1312px] overflow-hidden rounded-[24px] border border-white/70 bg-white px-6 py-8 shadow-[0_2px_8px_rgba(0,0,0,0.07)] md:px-10 md:py-10"
+        className={`mx-auto mt-[56px] w-[calc(100%-70px)] max-w-[1312px] overflow-hidden rounded-[24px] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.07)] ${
+          !loading && user ? "px-0 py-0" : "px-6 py-8 md:px-10 md:py-10"
+        }`}
         id="cupons"
       >
-        <div className="grid gap-8 lg:grid-cols-[1.02fr_0.98fr] lg:items-start">
-          <div>
-            <h2 className="max-w-[640px] text-[30px] leading-[38px] text-[#071735] md:text-[34px] md:leading-[41px]">
-              Crie sua conta Acesse+ e aproveite todas as vantagens
-            </h2>
-            <p className="mt-4 max-w-[620px] text-[15px] leading-[24px] text-[#476155]">
-              Entre para salvar favoritos, acompanhar ofertas, comprar com mais confiança e usar uma
-              experiência mais clara do início ao fim.
-            </p>
-          </div>
+        {!loading && user ? (
+          <AuthenticatedPromo />
+        ) : (
+          <>
+            <div className="grid gap-8 lg:grid-cols-[1.02fr_0.98fr] lg:items-start">
+              <div>
+                <h2 className="max-w-[640px] text-[30px] leading-[38px] text-[#071735] md:text-[34px] md:leading-[41px]">
+                  Crie sua conta Acesse+ e aproveite todas as vantagens
+                </h2>
+                <p className="mt-4 max-w-[620px] text-[15px] leading-[24px] text-[#476155]">
+                  Entre para salvar favoritos, acompanhar ofertas, comprar com mais confiança e usar uma
+                  experiência mais clara do início ao fim.
+                </p>
+              </div>
 
-          <div className="grid grid-cols-4 gap-3">
-            {signupBenefits.map((benefit) => (
-              <article
-                className="flex min-h-[162px] flex-col items-start gap-3 rounded-[20px] bg-[#f6f8f5] px-4 py-4"
-                key={benefit.title}
+              <div className="grid grid-cols-4 gap-3">
+                {signupBenefits.map((benefit) => (
+                  <article
+                    className="flex min-h-[162px] flex-col items-start gap-3 rounded-[20px] bg-[#f6f8f5] px-4 py-4"
+                    key={benefit.title}
+                  >
+                    <span className="flex h-[50px] w-[50px] shrink-0 items-center justify-center rounded-full bg-white">
+                      <img className="h-7 w-7 object-contain" alt="" src={benefit.icon} />
+                    </span>
+                    <div className="min-w-0">
+                      <h3 className="text-[15px] leading-[19px] text-[#071735]">{benefit.title}</h3>
+                      <p className="mt-1 text-[12px] leading-[17px] text-[#476155]">{benefit.description}</p>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-8 flex justify-start">
+              <Link
+                className="inline-flex h-[53px] items-center rounded-[27px] bg-[#ee3544] px-[25px] text-[18px] leading-[24px] text-white no-underline transition-colors hover:bg-[#d9303f]"
+                to="/cadastro"
               >
-                <span className="flex h-[50px] w-[50px] shrink-0 items-center justify-center rounded-full bg-white">
-                  <img className="h-7 w-7 object-contain" alt="" src={benefit.icon} />
-                </span>
-                <div className="min-w-0">
-                  <h3 className="text-[15px] leading-[19px] text-[#071735]">{benefit.title}</h3>
-                  <p className="mt-1 text-[12px] leading-[17px] text-[#476155]">{benefit.description}</p>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-
-        <div className="mt-8 flex justify-start">
-          <Link
-            className="inline-flex h-[53px] items-center rounded-[27px] bg-[#ee3544] px-[25px] text-[18px] leading-[24px] text-white no-underline transition-colors hover:bg-[#d9303f]"
-            to="/cadastro"
-          >
-            Criar conta gratuitamente
-          </Link>
-        </div>
+                Criar conta gratuitamente
+              </Link>
+            </div>
+          </>
+        )}
       </section>
 
       <ProductSection />
