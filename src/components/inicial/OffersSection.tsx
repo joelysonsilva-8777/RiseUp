@@ -2,17 +2,50 @@ import { Link } from "react-router-dom";
 
 type Product = {
   name: string;
+  category: string;
+  description: string;
   oldPrice?: string;
   price: string;
 };
 
 const products: Product[] = [
-  { name: "Samsung Galaxy A5 - Branco", oldPrice: "R$ 750", price: "R$ 700" },
-  { name: "Galaxy tap a11", price: "R$ 850" },
-  { name: "iPhone 17 Pro Max 512GB - LACRADO", price: "R$ 11.850" },
-  { name: "Redmi note 14 pro+ 256 gb", price: "R$ 1.200" },
-  { name: "Redmi note 14 pro+ 256 gb", price: "R$ 1.200" },
-  { name: "Redmi note 14 pro+ 256 gb", price: "R$ 1.200" },
+  {
+    name: "Kit de ponteira adaptada para controle fino",
+    category: "Precisão",
+    description: "Melhora a pegada e a resposta de toques delicados.",
+    oldPrice: "R$ 320",
+    price: "R$ 290",
+  },
+  {
+    name: "Braço robótico leve para auxílio de alcance",
+    category: "Robótica assistiva",
+    description: "Extensão mecânica para pegar, apoiar e movimentar objetos.",
+    price: "R$ 18.400",
+  },
+  {
+    name: "Interface háptica para navegação tátil",
+    category: "Feedback tátil",
+    description: "Traduz conteúdo e direção em vibrações compreensíveis.",
+    price: "R$ 6.700",
+  },
+  {
+    name: "Módulo de leitura por voz offline",
+    category: "Leitura",
+    description: "Converte texto em voz sem depender de conexão.",
+    price: "R$ 1.280",
+  },
+  {
+    name: "Capa com suporte magnético para mobilidade",
+    category: "Mobilidade",
+    description: "Fixação firme para transportar controles e acessórios.",
+    price: "R$ 185",
+  },
+  {
+    name: "Sistema neural assistivo para comandos rápidos",
+    category: "Neural",
+    description: "Camada experimental para gestos e comandos de alta precisão.",
+    price: "R$ 72.000",
+  },
 ];
 
 const topOffers = products.slice(0, 4);
@@ -20,15 +53,26 @@ const topOffers = products.slice(0, 4);
 const ProductCard = ({
   name,
   oldPrice,
+  category,
+  description,
   price,
 }: {
   name: string;
+  category: string;
+  description: string;
   oldPrice?: string;
   price: string;
 }) => (
   <article className="min-w-0">
     <Link className="block text-[#071735] no-underline" to="/produto">
-      <div className="h-[168px] w-full rounded-[5px] bg-white" />
+      <div className="flex h-[168px] w-full flex-col items-start justify-between rounded-[5px] bg-white px-4 py-4 text-[#071735]">
+        <span className="inline-flex rounded-full bg-[#ecf8e8] px-3 py-1 text-[11px] uppercase tracking-[0.14em] text-[#167307]">
+          {category}
+        </span>
+        <div>
+          <p className="text-[12px] leading-[18px] text-[#476155]">{description}</p>
+        </div>
+      </div>
       <h3 className="mt-3 min-h-[44px] text-[15px] leading-[20px] text-[#071735]">
         {name}
       </h3>
@@ -53,15 +97,24 @@ const OffersSection = () => (
   >
     <article className="h-[438px] overflow-hidden rounded-[10px] bg-white px-[31px] pt-[20px]">
       <h1 className="text-[33px] leading-[40px] text-[#071735]">Oferta do dia</h1>
-      <div className="mx-auto mt-4 h-[211px] w-[243px] rounded-[5px] bg-[#d9d9d9]" />
+      <div className="mx-auto mt-4 flex h-[211px] w-[243px] flex-col items-start justify-between rounded-[5px] bg-[#f7faf6] px-4 py-4">
+        <span className="inline-flex rounded-full bg-[#ecf8e8] px-3 py-1 text-[11px] uppercase tracking-[0.14em] text-[#167307]">
+          Neural
+        </span>
+        <div>
+          <p className="text-[14px] leading-[20px] text-[#476155]">
+            Interface inspirada em neurotecnologia para comandos rápidos e assistência fina.
+          </p>
+        </div>
+      </div>
       <h2 className="mt-[13px] text-[21px] leading-[26px] text-[#071735]">
-        Samsung Galaxy A5 - Branco
+        Sistema neural assistivo para comandos rápidos
       </h2>
-      <p className="mt-[18px] text-[17px] leading-[20px] text-[#8493ad]">R$ 750</p>
-      <p className="text-[32px] leading-[38px] text-[#071735]">R$ 700</p>
+      <p className="mt-[18px] text-[17px] leading-[20px] text-[#8493ad]">R$ 72.000</p>
+      <p className="text-[32px] leading-[38px] text-[#071735]">R$ 69.900</p>
       <p className="mt-[20px] flex flex-wrap gap-x-[31px] gap-y-1 text-[21px] leading-[25px] text-[#0b1020]">
         <span>Hoje, 16:46</span>
-        <span>Paulista - PE</span>
+        <span>Laboratório Acesse+ - PE</span>
       </p>
     </article>
 

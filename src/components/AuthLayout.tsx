@@ -170,7 +170,7 @@ const AccessibilityPanel = ({ firstToggleActive = false }: { firstToggleActive?:
 
 export const AuthLayout = ({ children, firstToggleActive = false }: AuthLayoutProps) => (
   <main className="min-h-screen w-full overflow-x-hidden bg-[#edfdec] font-['Montserrat',sans-serif] text-[#071735] [&_h1]:m-0 [&_h2]:m-0 [&_h3]:m-0 [&_p]:m-0">
-    <AppHeader />
+    <AppHeader showNav={false} />
     <section className="grid min-h-[801px] w-full grid-cols-[minmax(520px,51.2%)_minmax(430px,1fr)]">
       <AccessibilityPanel firstToggleActive={firstToggleActive} />
       <section className="relative flex min-w-0 items-center justify-center overflow-hidden bg-black px-8 py-12">

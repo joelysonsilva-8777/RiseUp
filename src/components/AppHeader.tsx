@@ -1,6 +1,6 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
-import { FiLogOut, FiUser } from "react-icons/fi";
+import { FiArrowUp, FiLogOut, FiUser } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
 
 const HeaderIconButton = ({
@@ -56,25 +56,85 @@ type AppHeaderProps = {
   showNav?: boolean;
 };
 
+type AnnouncementItem = {
+  title: string;
+  text: string;
+};
+
+const announcementItems: AnnouncementItem[] = [
+  { title: "Acessibilidade", text: "Conteúdo claro, leitura simples e navegação pensada para todos." },
+  { title: "Produtos", text: "Ofertas, celulares, moda e categorias com foco em clareza." },
+  { title: "Pagamentos", text: "Pix, cartão e checkout seguro com fluxo direto." },
+  { title: "Entrega", text: "Informações objetivas de envio e acompanhamento." },
+  { title: "Suporte", text: "Ajuda rápida para comprar, vender e navegar." },
+  { title: "Tecnologia", text: "Leitores de tela, teclados adaptados e recursos inteligentes." },
+];
+
+const AnnouncementCard = ({ title, text }: AnnouncementItem) => (
+  <article className="flex min-w-[278px] items-center gap-3 border border-[#d7e8d4] bg-white px-4 py-2 shadow-[0_1px_0_rgba(0,0,0,0.02)]">
+    <span className="flex h-2.5 w-2.5 shrink-0 rounded-full bg-[#167307]" aria-hidden="true">
+    </span>
+    <div className="min-w-0">
+      <p className="text-[11px] uppercase tracking-[0.14em] text-[#167307]">{title}</p>
+      <p className="truncate text-[13px] leading-[16px] text-[#355e3a]">{text}</p>
+    </div>
+  </article>
+);
+
 export const AppHeader = ({ showNav = true }: AppHeaderProps) => {
   const { user, firstName, loading, logout, photoURL } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
-  const initials = (firstName || "Entrar")
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join("");
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isAnnouncementPaused, setIsAnnouncementPaused] = useState(false);
+  const headerSpacerHeight = showNav ? (isScrolled ? 78 : 192) : 78;
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 8);
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   return (
-    <header className="w-full shrink-0 font-['Montserrat',sans-serif]">
+    <>
+      <header className="fixed left-0 right-0 top-0 z-50 w-full shrink-0 font-['Montserrat',sans-serif]">
+      {showNav ? (
+        <div
+          className={`overflow-hidden border-b border-[#d7e8d4] bg-[#f5fbf3] transition-all duration-300 ease-out ${
+            isScrolled ? "max-h-0 opacity-0 -translate-y-2" : "max-h-[68px] opacity-100 translate-y-0"
+          }`}
+          onMouseEnter={() => setIsAnnouncementPaused(true)}
+          onMouseLeave={() => setIsAnnouncementPaused(false)}
+        >
+          <div className="flex h-[68px] items-center gap-4 px-[14px]">
+            <Link className="shrink-0 no-underline" to="/" aria-label="Ir para a página inicial">
+              <img className="h-[26px] w-[94px] object-contain" alt="Acesse+" src="/Group-56.svg" />
+            </Link>
+
+            <div className="min-w-0 flex-1 overflow-hidden">
+              <div
+                className={`announcement-marquee flex w-max items-center gap-3 ${
+                  isAnnouncementPaused ? "announcement-marquee-paused" : ""
+                }`}
+              >
+                {[...announcementItems, ...announcementItems].map((item, index) => (
+                  <AnnouncementCard key={`${item.title}-${index}`} {...item} />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       <div className="flex h-[78px] w-full items-center bg-[#167307] px-[14px] text-white">
         <Link className="shrink-0 no-underline" to="/" aria-label="Ir para a página inicial">
-          <img
-            className="h-[37px] w-[135px] object-contain"
-            alt="Acesse+"
-            src="/Group-56.svg"
-          />
+          <img className="h-[37px] w-[135px] object-contain" alt="Acesse+" src="/Group-56.svg" />
         </Link>
 
         <a
@@ -183,8 +243,12 @@ export const AppHeader = ({ showNav = true }: AppHeaderProps) => {
       </div>
 
       {showNav ? (
-        <nav className="flex h-[46px] w-full items-center bg-[#f4f4f4] px-[36px] text-[#257a0d]">
-          <div className="grid w-full max-w-[713px] grid-cols-[173px_154px_143px_1fr] items-center gap-[30px]">
+        <nav
+          className={`overflow-hidden border-b border-[#e4e7eb] bg-[#f4f4f4] px-[36px] text-[#257a0d] transition-all duration-300 ease-out ${
+            isScrolled ? "max-h-0 opacity-0 -translate-y-2" : "max-h-[46px] opacity-100 translate-y-0"
+          }`}
+        >
+          <div className="grid h-[46px] w-full max-w-[713px] grid-cols-[173px_154px_143px_1fr] items-center gap-[30px]">
             <Link
               className="flex items-center gap-2 text-[14px] leading-[17px] text-[#257a0d] no-underline"
               to="/#categorias"
@@ -234,6 +298,27 @@ export const AppHeader = ({ showNav = true }: AppHeaderProps) => {
           </div>
         </nav>
       ) : null}
-    </header>
+
+      <button
+        aria-label="Voltar ao topo"
+        className={`fixed bottom-6 right-6 z-[60] flex h-12 w-12 items-center justify-center border border-[#167307] bg-[#167307] text-white shadow-[0_10px_25px_rgba(0,0,0,0.2)] transition-all duration-300 ease-out hover:bg-[#125d05] ${
+          isScrolled ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-3 opacity-0"
+        }`}
+        onClick={() => {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
+        type="button"
+      >
+        <FiArrowUp size={20} />
+      </button>
+      </header>
+
+      <div
+        aria-hidden="true"
+        className="w-full transition-[height] duration-300 ease-out"
+        style={{ height: headerSpacerHeight }}
+      />
+
+    </>
   );
 };

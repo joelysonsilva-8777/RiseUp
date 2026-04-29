@@ -1,29 +1,74 @@
 type Product = {
   name: string;
+  category: string;
+  description: string;
   oldPrice?: string;
   price: string;
 };
 
 const products: Product[] = [
-  { name: "Samsung Galaxy A5 - Branco", oldPrice: "R$ 750", price: "R$ 700" },
-  { name: "Galaxy tap a11", price: "R$ 850" },
-  { name: "iPhone 17 Pro Max 512GB - LACRADO", price: "R$ 11.850" },
-  { name: "Redmi note 14 pro+ 256 gb", price: "R$ 1.200" },
-  { name: "Redmi note 14 pro+ 256 gb", price: "R$ 1.200" },
-  { name: "Redmi note 14 pro+ 256 gb", price: "R$ 1.200" },
+  {
+    name: "Prótese biônica de mão modular",
+    category: "Mão biônica",
+    description: "Sensores táteis, pegada precisa e resposta motora fina.",
+    oldPrice: "Sob consulta",
+    price: "R$ 48.000",
+  },
+  {
+    name: "Óculos assistivo com leitura de ambiente",
+    category: "Visão",
+    description: "Reconhece placas, obstáculos e contexto imediato.",
+    price: "R$ 9.800",
+  },
+  {
+    name: "Teclado braille mecânico premium",
+    category: "Acesso tátil",
+    description: "Feedback silencioso, USB-C e teclas de alta precisão.",
+    price: "R$ 2.400",
+  },
+  {
+    name: "Mouse ocular com calibração rápida",
+    category: "Controle por olhar",
+    description: "Cursor responsivo para navegação sem toque.",
+    price: "R$ 7.900",
+  },
+  {
+    name: "Cadeira motorizada com navegação inteligente",
+    category: "Mobilidade",
+    description: "Controle por app e assistência de percurso interno.",
+    oldPrice: "A partir de R$ 12.500",
+    price: "R$ 11.900",
+  },
+  {
+    name: "Fone de condução óssea clínica",
+    category: "Audição",
+    description: "Conversa assistida sem bloquear o ouvido externo.",
+    price: "R$ 1.350",
+  },
 ];
 
 const ProductCard = ({
   name,
   oldPrice,
+  category,
+  description,
   price,
 }: {
   name: string;
+  category: string;
+  description: string;
   oldPrice?: string;
   price: string;
 }) => (
   <article className="min-w-0">
-    <div className="h-[168px] w-full rounded-[5px] bg-white" />
+    <div className="flex h-[168px] w-full flex-col items-start justify-between rounded-[5px] bg-white px-4 py-4 text-[#071735]">
+      <span className="inline-flex rounded-full bg-[#ecf8e8] px-3 py-1 text-[11px] uppercase tracking-[0.14em] text-[#167307]">
+        {category}
+      </span>
+      <div>
+        <p className="text-[12px] leading-[18px] text-[#476155]">{description}</p>
+      </div>
+    </div>
     <h3 className="mt-3 min-h-[44px] text-[15px] leading-[20px] text-[#071735]">{name}</h3>
     <div className="mt-4 min-h-[39px]">
       {oldPrice ? (
@@ -45,7 +90,7 @@ type ProductsSectionProps = {
 const ProductsSection = ({ className = "mt-[70px]" }: ProductsSectionProps) => (
   <section className={`mx-auto w-[calc(100%-70px)] max-w-[1312px] px-0 ${className}`}>
     <h2 className="text-[23px] leading-[28px] text-[#071735]">
-      Baixaram de preço em Eletrônicos e celulares
+      Tecnologia assistiva em destaque
     </h2>
     <div className="mt-4 grid grid-cols-6 gap-x-[31px]">
       {products.map((product, index) => (

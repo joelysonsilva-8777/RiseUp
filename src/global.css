@@ -19,3 +19,29 @@ body {
     border-width: 0;
   }
 }
+
+@keyframes announcement-marquee {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.announcement-marquee {
+  animation: announcement-marquee 28s linear infinite;
+  will-change: transform;
+}
+
+.announcement-marquee-paused {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .announcement-marquee {
+    animation: none;
+    transform: translateX(0);
+  }
+}
