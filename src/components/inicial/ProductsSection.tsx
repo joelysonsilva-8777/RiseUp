@@ -1,3 +1,6 @@
+import { useRef } from "react";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+
 type Product = {
   name: string;
   category: string;
@@ -83,6 +86,60 @@ const ProductCard = ({
   </article>
 );
 
+const MobileProductCarousel = () => {
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+
+  const scrollByAmount = (direction: -1 | 1) => {
+    const container = scrollRef.current;
+
+    if (!container) {
+      return;
+    }
+
+    container.scrollBy({
+      left: direction * Math.max(container.clientWidth * 0.82, 240),
+      behavior: "smooth",
+    });
+  };
+
+  return (
+    <div className="lg:hidden">
+      <div className="mt-4 flex items-center justify-between gap-3">
+        <button
+          aria-label="Ver produtos anteriores"
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-[#d7e8d4] bg-white text-[#167307] shadow-[0_1px_2px_rgba(0,0,0,0.06)]"
+          onClick={() => scrollByAmount(-1)}
+          type="button"
+        >
+          <FiChevronLeft size={20} />
+        </button>
+        <p className="text-[12px] leading-[16px] text-[#476155]">
+          Deslize ou use as setas para navegar
+        </p>
+        <button
+          aria-label="Ver próximos produtos"
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-[#d7e8d4] bg-white text-[#167307] shadow-[0_1px_2px_rgba(0,0,0,0.06)]"
+          onClick={() => scrollByAmount(1)}
+          type="button"
+        >
+          <FiChevronRight size={20} />
+        </button>
+      </div>
+
+      <div
+        ref={scrollRef}
+        className="mt-4 flex gap-3 overflow-x-auto scroll-smooth pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+      >
+        {products.map((product, index) => (
+          <div className="w-[min(84vw,320px)] shrink-0 snap-start" key={`${product.name}-${index}`}>
+            <ProductCard {...product} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 type ProductsSectionProps = {
   className?: string;
 };
@@ -92,7 +149,8 @@ const ProductsSection = ({ className = "mt-[70px]" }: ProductsSectionProps) => (
     <h2 className="text-[23px] leading-[28px] text-[#071735]">
       Tecnologia assistiva em destaque
     </h2>
-    <div className="mt-4 grid grid-cols-6 gap-x-[31px]">
+    <MobileProductCarousel />
+    <div className="mt-4 hidden grid-cols-6 gap-x-[31px] lg:grid">
       {products.map((product, index) => (
         <ProductCard key={`${product.name}-${index}`} {...product} />
       ))}
