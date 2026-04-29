@@ -78,7 +78,7 @@ const ProductsSection = ({ className = "mt-[70px]" }: ProductsSectionProps) => (
     <h2 className="text-[19px] leading-[24px] text-[#071735] sm:text-[23px] sm:leading-[28px]">
       Tecnologia assistiva em destaque
     </h2>
-    <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-x-[31px] xl:grid-cols-6">
+    <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6 lg:gap-x-[31px]">
       {products.map((product, index) => (
         <ProductCard key={`${product.name}-${index}`} {...product} />
       ))}
