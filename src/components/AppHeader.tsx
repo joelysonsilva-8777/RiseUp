@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
+import { FiLogOut, FiUser } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
 
 const HeaderIconButton = ({
@@ -56,7 +57,7 @@ type AppHeaderProps = {
 };
 
 export const AppHeader = ({ showNav = true }: AppHeaderProps) => {
-  const { user, firstName, loading, logout } = useAuth();
+  const { user, firstName, loading, logout, photoURL } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const initials = (firstName || "Entrar")
     .split(/\s+/)
@@ -126,37 +127,45 @@ export const AppHeader = ({ showNav = true }: AppHeaderProps) => {
           </HeaderIconButton>
 
           {loading ? (
-            <div className="flex min-w-[162px] items-center gap-3 rounded-full border border-white/15 bg-white/10 px-4 py-2">
+            <div className="flex min-w-[162px] items-center gap-3 px-1 py-1">
               <span className="h-8 w-8 rounded-full bg-white/20" />
               <span className="text-[14px] leading-[18px] text-white/80">Carregando</span>
             </div>
           ) : user ? (
-            <div className="flex items-center gap-3 rounded-full border border-white/15 bg-white/10 px-4 py-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#ecf8e8] text-[13px] font-semibold text-[#167307]">
-                {initials || "U"}
-              </span>
-              <span className="min-w-0">
-                <span className="block text-[11px] leading-[13px] text-white/70">Olá,</span>
-                <span className="block max-w-[150px] truncate text-[14px] leading-[18px] text-white">
-                  {firstName || "Usuário"}
+            <div className="flex items-center gap-3">
+              <Link className="flex items-center gap-3 no-underline" to="/perfil">
+                <span className="flex h-9 w-9 items-center justify-center overflow-hidden border border-white/20 bg-[#ecf8e8] text-[13px] font-semibold text-[#167307]">
+                  {photoURL ? (
+                    <img className="h-full w-full object-cover" alt="Foto de perfil" src={photoURL} />
+                  ) : (
+                    <FiUser size={18} />
+                  )}
                 </span>
-              </span>
+                <span className="min-w-0">
+                  <span className="block text-[11px] leading-[13px] text-white/70">Olá,</span>
+                  <span className="block max-w-[150px] truncate text-[14px] leading-[18px] text-white">
+                    {firstName || "Usuário"}
+                  </span>
+                </span>
+              </Link>
+
               <button
-                className="ml-1 text-[12px] leading-[16px] text-white/75 transition-colors hover:text-white"
+                aria-label="Sair da conta"
+                className="flex h-9 w-9 items-center justify-center border-0 bg-transparent p-0 text-[#ff4d4f] transition-colors hover:text-[#ff7a7b]"
                 onClick={() => {
                   void logout();
                 }}
                 type="button"
               >
-                Sair
+                <FiLogOut size={20} />
               </button>
             </div>
           ) : (
             <Link
-              className="flex items-center gap-3 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-white no-underline transition-colors hover:bg-white/15"
+              className="flex items-center gap-3 border border-white/15 bg-white/10 px-4 py-2 text-white no-underline transition-colors hover:bg-white/15"
               to="/login"
             >
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#ecf8e8] text-[#167307]">
+              <span className="flex h-8 w-8 items-center justify-center bg-[#ecf8e8] text-[#167307]">
                 <UserIcon />
               </span>
               <span className="text-[14px] leading-[18px] text-white">Entrar</span>

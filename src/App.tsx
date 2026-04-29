@@ -10,6 +10,7 @@ import TelaCarrinho from "./pages/TelaCarrinho";
 import TelaCadastro from "./pages/TelaCadastro";
 import TelaLogin from "./pages/TelaLogin";
 import TelaProduto from "./pages/TelaProduto";
+import TelaPerfil from "./pages/TelaPerfil";
 
 function App() {
   const action = useNavigationType();
@@ -73,6 +74,7 @@ function App() {
       <Route path="/cadastro" element={<TelaCadastro />} />
       <Route path="/registro" element={<TelaCadastro />} />
       <Route path="/produto" element={<TelaProduto />} />
+      <Route path="/perfil" element={<TelaPerfil />} />
       <Route path="/carrinho" element={<TelaCarrinho />} />
       <Route path="/carrinho/endereco" element={<TelaCarrinho step="address" />} />
       <Route path="/carrinho/entrega" element={<TelaCarrinho step="delivery" />} />

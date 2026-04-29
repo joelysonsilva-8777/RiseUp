@@ -9,6 +9,11 @@ type UserProfile = {
   disabilityType?: string;
   preferredActivity?: string;
   email?: string;
+  phone?: string;
+  bio?: string;
+  city?: string;
+  state?: string;
+  photoURL?: string;
 };
 
 type AuthContextValue = {
@@ -16,7 +21,9 @@ type AuthContextValue = {
   profile: UserProfile | null;
   displayName: string;
   firstName: string;
+  photoURL: string;
   loading: boolean;
+  refreshProfile: () => Promise<void>;
   logout: () => Promise<void>;
 };
 
@@ -37,6 +44,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const loadProfile = async (currentUser: User | null) => {
+    if (!currentUser) {
+      setProfile(null);
+      return;
+    }
+
+    try {
+      const profileSnapshot = await getDoc(doc(firestore, "users", currentUser.uid));
+      setProfile(profileSnapshot.exists() ? (profileSnapshot.data() as UserProfile) : null);
+    } catch {
+      setProfile(null);
+    }
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
@@ -49,14 +70,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       setLoading(true);
 
-      try {
-        const profileSnapshot = await getDoc(doc(firestore, "users", currentUser.uid));
-        setProfile(profileSnapshot.exists() ? (profileSnapshot.data() as UserProfile) : null);
-      } catch {
-        setProfile(null);
-      } finally {
-        setLoading(false);
-      }
+      await loadProfile(currentUser);
+      setLoading(false);
     });
 
     return () => unsubscribe();
@@ -65,6 +80,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const displayName =
     profile?.fullName ?? user?.displayName ?? user?.email?.split("@")[0] ?? "";
   const firstName = getFirstName(displayName);
+  const photoURL = profile?.photoURL ?? user?.photoURL ?? "";
+
+  const refreshProfile = async () => {
+    await loadProfile(auth.currentUser);
+  };
 
   const logout = async () => {
     await signOut(auth);
@@ -78,7 +98,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         profile,
         displayName,
         firstName,
+        photoURL,
         loading,
+        refreshProfile,
         logout,
       }}
     >
