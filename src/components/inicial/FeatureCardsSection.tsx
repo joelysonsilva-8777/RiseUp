@@ -35,7 +35,7 @@ const featureCards: FeatureCard[] = [
 ];
 
 const FeatureCardsSection = () => (
-  <section className="relative z-20 mx-auto -mt-[75px] grid w-[calc(100%-24px)] max-w-[830px] grid-cols-2 gap-3 sm:w-[calc(100%-48px)] sm:grid-cols-4 sm:gap-[48px]">
+  <section className="relative z-20 mx-auto -mt-[75px] grid w-[calc(100%-24px)] max-w-[830px] scroll-mt-[210px] grid-cols-2 gap-3 sm:w-[calc(100%-48px)] sm:grid-cols-4 sm:gap-[48px]" id="entrega">
     {featureCards.map((card) => (
       <article
         className="flex min-h-[168px] flex-col items-center rounded-[10px] bg-white px-3 pt-[14px] shadow-[0_1px_0_rgba(0,0,0,0.03)] sm:h-[194px] sm:px-6 sm:pt-[18px]"

@@ -20,7 +20,7 @@ const categories = [
 ];
 
 const CategoriesSection = () => (
-  <section className="mt-[78px] w-full bg-[#e8e8e8] pb-[53px] pt-[16px]" id="categorias">
+  <section className="mt-[78px] w-full scroll-mt-[210px] bg-[#e8e8e8] pb-[53px] pt-[16px]" id="categorias">
     <div className="mx-auto w-[calc(100%-70px)] max-w-[1325px]">
       <h2 className="text-[25px] leading-[30px] text-[#071735]">Categorias</h2>
       <MobileCategoriesCarousel />

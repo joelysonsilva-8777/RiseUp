@@ -116,7 +116,7 @@ export const AppHeader = ({ showNav = true }: AppHeaderProps) => {
         >
           <div className="flex h-[68px] items-center gap-4 px-[14px]">
             <Link className="shrink-0 no-underline" to="/" aria-label="Ir para a página inicial">
-              <img className="h-[26px] w-[94px] object-contain" alt="Acesse+" src="/Group-56.svg" />
+
             </Link>
 
             <div className="min-w-0 flex-1 overflow-hidden">
@@ -246,13 +246,13 @@ export const AppHeader = ({ showNav = true }: AppHeaderProps) => {
 
       {showNav ? (
         <nav
-          className={`overflow-hidden border-b border-[#e4e7eb] bg-[#f4f4f4] px-[36px] text-[#257a0d] transition-all duration-300 ease-out ${
+          className={`overflow-y-hidden overflow-x-auto border-b border-[#e4e7eb] bg-[#f4f4f4] px-0 text-[#257a0d] transition-all duration-300 ease-out [scrollbar-width:none] sm:px-[36px] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden ${
             isScrolled ? "max-h-0 opacity-0 -translate-y-2" : "max-h-[46px] opacity-100 translate-y-0"
           }`}
         >
-          <div className="grid h-[46px] w-full max-w-[713px] grid-cols-[173px_154px_143px_1fr] items-center gap-[30px]">
+          <div className="flex h-[46px] w-max min-w-full items-center gap-5 px-3 sm:grid sm:max-w-[713px] sm:grid-cols-[173px_154px_143px_1fr] sm:gap-[30px] sm:px-0">
             <Link
-              className="flex items-center gap-2 text-[14px] leading-[17px] text-[#257a0d] no-underline"
+              className="flex shrink-0 items-center gap-2 text-[14px] leading-[17px] text-[#257a0d] no-underline"
               to="/#categorias"
             >
               <img className="h-[18px] w-[18px] object-contain" alt="" src="/Menu-Background.svg" />
@@ -260,7 +260,7 @@ export const AppHeader = ({ showNav = true }: AppHeaderProps) => {
             </Link>
 
             <Link
-              className="flex items-center gap-3 text-[14px] leading-[15px] text-[#257a0d] no-underline"
+              className="flex shrink-0 items-center gap-3 text-[14px] leading-[15px] text-[#257a0d] no-underline"
               to="/#entrega"
             >
               <img className="h-6 w-6 object-contain" alt="" src="/Location-Icon.svg" />
@@ -272,7 +272,7 @@ export const AppHeader = ({ showNav = true }: AppHeaderProps) => {
             </Link>
 
             <Link
-              className="flex items-center gap-3 text-[14px] leading-[17px] text-[#257a0d] no-underline"
+              className="flex shrink-0 items-center gap-3 text-[14px] leading-[17px] text-[#257a0d] no-underline"
               to="/#cupons"
             >
               <img className="h-6 w-6 object-contain" alt="" src="/Vector.svg" />
@@ -280,7 +280,7 @@ export const AppHeader = ({ showNav = true }: AppHeaderProps) => {
             </Link>
 
             <Link
-              className="flex items-center gap-2 text-[14px] leading-[17px] text-[#257a0d] no-underline"
+              className="flex shrink-0 items-center gap-2 text-[14px] leading-[17px] text-[#257a0d] no-underline"
               to="/#ofertas"
             >
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#ecf8e8]">

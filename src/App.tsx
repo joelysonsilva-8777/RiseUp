@@ -5,23 +5,34 @@ import {
   useNavigationType,
   useLocation,
 } from "react-router-dom";
-import Inicial from "./pages/Inicial";
-import TelaCarrinho from "./pages/TelaCarrinho";
-import TelaCadastro from "./pages/TelaCadastro";
-import TelaLogin from "./pages/TelaLogin";
-import TelaProduto from "./pages/TelaProduto";
-import TelaPerfil from "./pages/TelaPerfil";
+import Inicial from "./pages/Inicial/index";
+import TelaCarrinho from "./pages/TelaCarrinho/index";
+import TelaCadastro from "./pages/TelaCadastro/index";
+import TelaLogin from "./pages/TelaLogin/index";
+import TelaProduto from "./pages/TelaProduto/index";
+import TelaPerfil from "./pages/TelaPerfil/index";
 
 function App() {
   const action = useNavigationType();
   const location = useLocation();
   const pathname = location.pathname;
+  const hash = location.hash;
 
   useEffect(() => {
-    if (action !== "POP") {
+    if (action !== "POP" && !hash) {
       window.scrollTo(0, 0);
     }
-  }, [action, pathname]);
+  }, [action, hash, pathname]);
+
+  useEffect(() => {
+    if (!hash) {
+      return;
+    }
+
+    window.setTimeout(() => {
+      document.getElementById(hash.slice(1))?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 0);
+  }, [hash, pathname]);
 
   useEffect(() => {
     let title = "";
