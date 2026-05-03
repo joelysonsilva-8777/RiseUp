@@ -32,7 +32,7 @@ const footerSections = [
 ];
 
 const FooterSection = () => (
-  <footer className="w-full border-t border-white/8 bg-[#0f1e18] text-white">
+  <footer className="w-full border-t border-white/8 bg-[#167307] text-white">
     <div className="mx-auto grid w-[calc(100%-24px)] max-w-[1325px] gap-10 px-0 py-[40px] sm:w-[calc(100%-70px)] sm:py-[56px] lg:grid-cols-[1.2fr_1fr_1fr_1fr]">
       <section className="max-w-[420px]">
         <img className="h-[42px] w-[155px] object-contain" alt="Acesse+" src="/Group-561.svg" />

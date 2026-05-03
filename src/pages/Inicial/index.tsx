@@ -9,6 +9,7 @@ import ProductsSection from "../../components/inicial/ProductsSection";
 import SignupSection from "../../components/inicial/SignupSection";
 import SocialCommunityCard from "../../components/inicial/SocialCommunityCard";
 import { useAuth } from "../../context/AuthContext";
+import { productsDestaque, productsOfertas } from "../../data/products";
 
 const Inicial = () => {
   const { user, loading } = useAuth();
@@ -19,7 +20,12 @@ const Inicial = () => {
       <HeroSection />
       <FeatureCardsSection />
       <OffersSection />
-      <ProductsSection className="mt-[38px]" />
+
+      <ProductsSection
+        className="mt-[38px]"
+        title="Tecnologia assistiva em destaque"
+        products={productsDestaque}
+      />
 
       <section
         className={`mx-auto mt-[56px] w-[calc(100%-24px)] max-w-[1312px] scroll-mt-[210px] overflow-hidden rounded-[24px] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.07)] sm:w-[calc(100%-70px)] ${
@@ -30,9 +36,20 @@ const Inicial = () => {
         {!loading && user ? <AuthenticatedPromo /> : <SignupSection />}
       </section>
 
-      <ProductsSection />
-      <ProductsSection />
-      <ProductsSection />
+      <ProductsSection
+        title="Ofertas da semana"
+        products={productsOfertas}
+      />
+
+      <ProductsSection
+        title="Mais vendidos"
+        products={productsDestaque}
+      />
+
+      <ProductsSection
+        title="Novidades"
+        products={productsOfertas}
+      />
 
       <CategoriesSection />
       <SocialCommunityCard />

@@ -10,7 +10,7 @@ type Product = {
   price: string;
 };
 
-const products: Product[] = [
+const defaultProducts: Product[] = [
   {
     name: "Prótese biônica de mão modular",
     category: "Mão biônica",
@@ -136,7 +136,7 @@ const MobileProductCarousel = () => {
         ref={scrollRef}
         className="mt-4 flex gap-3 overflow-x-auto scroll-smooth pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
       >
-        {products.map((product, index) => (
+        {defaultProducts.map((product, index) => (
           <div className="w-[min(78vw,300px)] shrink-0 snap-start" key={`${product.name}-${index}`}>
             <ProductCard {...product} />
           </div>
@@ -148,12 +148,18 @@ const MobileProductCarousel = () => {
 
 type ProductsSectionProps = {
   className?: string;
+  title?: string;
+  products?: Product[];
 };
 
-const ProductsSection = ({ className = "mt-[70px]" }: ProductsSectionProps) => (
+const ProductsSection = ({ 
+  className = "mt-[70px]",
+  title = "Tecnologia assistiva em destaque",
+  products = defaultProducts  // renomeia o array atual para defaultProducts
+}: ProductsSectionProps) => (
   <section className={`mx-auto w-[calc(100%-24px)] max-w-[1312px] px-0 sm:w-[calc(100%-70px)] ${className}`}>
     <h2 className="text-[23px] leading-[28px] text-[#071735]">
-      Tecnologia assistiva em destaque
+      {title}
     </h2>
     <MobileProductCarousel />
     <div className="mt-4 hidden grid-cols-6 gap-x-[31px] [@media(min-width:1051px)]:grid">
