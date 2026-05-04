@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { updateProfile as updateAuthProfile } from "firebase/auth";
 import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { FiCamera, FiCheck, FiSave, FiX, FiZoomIn, FiZoomOut } from "react-icons/fi";
+import { FiCamera, FiCheck, FiPackage, FiSave, FiX, FiZoomIn, FiZoomOut } from "react-icons/fi";
 import { AppHeader } from "../../components/AppHeader";
 import { useAuth } from "../../context/AuthContext";
 import { auth, firestore, storage } from "../../firebase/firebase";
@@ -547,6 +547,15 @@ const TelaPerfil = () => {
                 type="button"
               >
                 Voltar para a loja
+              </button>
+
+              <button
+                className="inline-flex h-12 items-center gap-2 border border-[#dfe3e8] bg-white px-5 text-[14px] font-medium text-[#071735] transition-colors hover:border-[#167307] hover:text-[#167307]"
+                onClick={() => navigate("/produtos/novo")}
+                type="button"
+              >
+                <FiPackage />
+                Cadastrar produto
               </button>
             </div>
           </section>

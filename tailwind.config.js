@@ -3,12 +3,12 @@ module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     screens: {
-      mq1050: {
-        raw: "screen and (max-width: 1050px)",
-      },
-      lg: {
-        raw: "screen and (min-width: 1051px) and (max-width: 1200px)",
-      },
+      sm: "640px",
+      md: "768px",
+      lg: "1051px",
+      xl: "1200px",
+      "2xl": "1536px",
+      mq1050: { max: "1050px" },
     },
   },
   corePlugins: {

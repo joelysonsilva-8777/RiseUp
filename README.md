@@ -7,17 +7,19 @@
 
   ## Resumo executivo
 
-  O Acesse+ é uma interface de marketplace com foco em acessibilidade, leitura rápida e caminhos curtos para ações principais. A página inicial foi desenhada para permitir descoberta rápida de produtos, enquanto login e cadastro já funcionam com Firebase Authentication. O cabeçalho mostra o nome do usuário logado quando existe sessão ativa, e volta para `Entrar` quando não há conta autenticada.
+  O Acesse+ é uma interface de marketplace com foco em acessibilidade, leitura rápida e caminhos curtos para ações principais. A navegação principal cobre home, login, cadastro, produto, carrinho e perfil, enquanto a página inicial foi desenhada para permitir descoberta rápida de produtos. O cabeçalho mostra o nome do usuário logado quando existe sessão ativa, e volta para `Entrar` quando não há conta autenticada.
 
   O projeto está em fase de evolução. A base visual está forte, mas ainda existem partes estáticas ou visuais que serão ligadas a dados reais depois, como busca, cartões de categoria, alguns botões de suporte e controles do painel de acessibilidade.
 
   ## Estado atual do projeto
 
-  - Home com hero, atalhos, ofertas em destaque, bloco de cadastro, categorias e rodapé.
+  - Home com hero, atalhos, ofertas em destaque, bloco de cadastro, card de comunidade social, categorias e rodapé.
   - Login com Firebase Auth usando e-mail e senha.
   - Cadastro com Firebase Auth e gravação do perfil no Firestore em `users/{uid}`.
+  - Perfil com edição de dados, foto com recorte local e upload para Storage.
   - Header com estado autenticado: mostra o primeiro nome do usuário ou `Entrar` quando não existe sessão.
   - Carrinho e produto já possuem telas próprias e fluxo de checkout em etapas.
+  - As telas principais foram reorganizadas em subpastas próprias em `src/pages/<Tela>/index.tsx`.
   - Regras de segurança versionadas no repositório para Firestore, Storage e Realtime Database.
   - A busca do navbar está estilizada e pronta visualmente, mas ainda não filtra produtos.
   - Os botões de login com iCloud e Google são visuais por enquanto.
@@ -62,21 +64,31 @@
       storage.rules
       database.rules
     pages/
-      Inicial.tsx
-      TelaLogin.tsx
-      TelaCadastro.tsx
-      TelaProduto.tsx
-      TelaCarrinho.tsx
+      Inicial/
+        index.tsx
+      TelaLogin/
+        index.tsx
+      TelaCadastro/
+        index.tsx
+      TelaProduto/
+        index.tsx
+      TelaCarrinho/
+        index.tsx
+      TelaPerfil/
+        index.tsx
   ```
+
+  As telas foram movidas para pastas próprias com `index.tsx` para facilitar a organização por tela e evitar quebra de resolução ao trocar os arquivos de lugar. `src/App.tsx` agora aponta explicitamente para esses entrypoints.
 
   ### Arquivos importantes
 
   - `src/index.tsx` é o ponto de entrada ativo do Vite.
-  - `src/App.tsx` centraliza as rotas e o comportamento de scroll ao trocar de página.
+  - `src/App.tsx` centraliza as rotas, o comportamento de scroll ao trocar de página e os imports explícitos das telas para manter a resolução estável.
   - `src/context/AuthContext.tsx` observa a sessão e carrega o perfil do usuário.
   - `src/firebase/firebase.ts` inicializa o Firebase e expõe `auth`, `firestore`, `database` e `storage`.
   - `src/global.css` é a folha global ativa.
   - `src/main.tsx` e `src/styles.css` ainda existem como legado de scaffold, mas não fazem parte do fluxo atual de boot.
+  - `src/components/inicial/SocialCommunityCard.tsx` é a nova seção de comunidade inserida na home.
 
   ## Arquitetura e fluxo de dados
 
@@ -114,13 +126,14 @@
   | `/cadastro` | Cadastro | Criar conta e perfil do usuário |
   | `/registro` | Cadastro | Alias da rota de cadastro |
   | `/produto` | Produto | Detalhe do produto selecionado |
+  | `/perfil` | Perfil | Editar dados pessoais, foto e preferências |
   | `/carrinho` | Carrinho | Resumo do pedido |
   | `/carrinho/endereco` | Carrinho | Etapa de endereço |
   | `/carrinho/entrega` | Carrinho | Etapa de entrega |
 
   ## Como cada tela funciona
 
-  ### Home (`Inicial.tsx`)
+  ### Home (`src/pages/Inicial/index.tsx`)
 
   A página inicial é a vitrine do projeto.
 
@@ -131,6 +144,7 @@
   - bloco de oferta do dia;
   - grades de ofertas adicionais;
   - bloco de cadastro com benefícios;
+  - card de comunidade social com ícones flutuantes;
   - seção de categorias;
   - rodapé de suporte, confiança e navegação.
 
@@ -141,7 +155,7 @@
   - O bloco de cadastro reforça confiança e valor antes de pedir registro.
   - As categorias e o rodapé ajudam descoberta, mas não competem com as ações principais.
 
-  ### Login (`TelaLogin.tsx`)
+  ### Login (`src/pages/TelaLogin/index.tsx`)
 
   O login usa Firebase Auth com e-mail e senha.
 
@@ -155,7 +169,7 @@
 
   Os botões de iCloud e Google ainda são visuais e não estão conectados a provedores federados.
 
-  ### Cadastro (`TelaCadastro.tsx`)
+  ### Cadastro (`src/pages/TelaCadastro/index.tsx`)
 
   O cadastro também usa Firebase Auth.
 
@@ -170,7 +184,7 @@
   7. O perfil complementar é salvo em `users/{uid}` no Firestore.
   8. A tela volta para a home.
 
-  ### Produto (`TelaProduto.tsx`)
+  ### Produto (`src/pages/TelaProduto/index.tsx`)
 
   A tela de produto é um detalhe de demonstração com:
 
@@ -183,7 +197,7 @@
 
   Parte dos controles ainda é visual, mas a tela já serve para mostrar a lógica do funil de compra.
 
-  ### Carrinho (`TelaCarrinho.tsx`)
+  ### Carrinho (`src/pages/TelaCarrinho/index.tsx`)
 
   O carrinho funciona como um fluxo em etapas:
 
@@ -192,6 +206,22 @@
   - seleção de entrega.
 
   Isso foi feito no mesmo componente com variação por rota para preservar contexto durante o checkout.
+
+  ### Perfil (`src/pages/TelaPerfil/index.tsx`)
+
+  A tela de perfil permite atualizar os dados do usuário autenticado.
+
+  Fluxo atual:
+
+  1. O usuário abre `/perfil` autenticado.
+  2. Ajusta nome, telefone, cidade, estado e descrição.
+  3. Seleciona uma foto de perfil.
+  4. Recorta a imagem localmente antes de salvar.
+  5. Clica em `Salvar alterações`.
+  6. A foto é enviada para Storage e o restante do perfil é salvo no Firestore.
+  7. O cabeçalho e o contexto de autenticação passam a refletir os dados novos.
+
+  Se não houver sessão ativa, a tela redireciona para `/login`.
 
   ## Jornada do usuário e clique budget
 

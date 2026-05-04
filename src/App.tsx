@@ -11,6 +11,8 @@ import TelaCadastro from "./pages/TelaCadastro/index";
 import TelaLogin from "./pages/TelaLogin/index";
 import TelaProduto from "./pages/TelaProduto/index";
 import TelaPerfil from "./pages/TelaPerfil/index";
+import TelaBusca from "./pages/TelaBusca/index";
+import CadastrarProduto from "./pages/CadastrarProduto/index";
 
 function App() {
   const action = useNavigationType();
@@ -85,7 +87,10 @@ function App() {
       <Route path="/cadastro" element={<TelaCadastro />} />
       <Route path="/registro" element={<TelaCadastro />} />
       <Route path="/produto" element={<TelaProduto />} />
+      <Route path="/produto/:productId" element={<TelaProduto />} />
       <Route path="/perfil" element={<TelaPerfil />} />
+      <Route path="/buscar" element={<TelaBusca />} />
+      <Route path="/produtos/novo" element={<CadastrarProduto />} />
       <Route path="/carrinho" element={<TelaCarrinho />} />
       <Route path="/carrinho/endereco" element={<TelaCarrinho step="address" />} />
       <Route path="/carrinho/entrega" element={<TelaCarrinho step="delivery" />} />

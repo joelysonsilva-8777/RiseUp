@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 
 type FeatureCard = {
+  id: string;
   icon: string;
   label: string;
   description: string;
@@ -9,24 +10,28 @@ type FeatureCard = {
 
 const featureCards: FeatureCard[] = [
   {
+    id: "ofertas",
     icon: "/Empty-Box@2x.png",
     label: "Mostrar Produtos",
     description: "Produtos rápidos, com desconto e entrega ágil.",
     href: "#ofertas",
   },
   {
+    id: "pagamentos",
     icon: "/Wallet@2x.png",
     label: "Mostrar Meios",
     description: "Meios de pagamento aceitos no site.",
     href: "#cupons",
   },
   {
+    id: "categorias",
     icon: "/Market-Square@2x.png",
     label: "Mostrar Produtos",
     description: "Itens baratos, moda e boas ofertas.",
     href: "#categorias",
   },
   {
+    id: "conta",
     icon: "/Browse-page@2x.png",
     label: "Entrar na sua Conta",
     description: "Entre para salvar favoritos, comprar mais rápido e ver ofertas.",
@@ -39,7 +44,7 @@ const FeatureCardsSection = () => (
     {featureCards.map((card) => (
       <article
         className="flex min-h-[168px] flex-col items-center rounded-[10px] bg-white px-3 pt-[14px] shadow-[0_1px_0_rgba(0,0,0,0.03)] sm:h-[194px] sm:px-6 sm:pt-[18px]"
-        key={card.label}
+        key={card.id}
       >
         <img className="h-[50px] w-[50px] object-contain sm:h-[60px] sm:w-[60px]" alt="" src={card.icon} />
         <h3 className="mt-3 text-center text-[13px] leading-[17px] text-[#071735] sm:text-[15px] sm:leading-[20px]">
