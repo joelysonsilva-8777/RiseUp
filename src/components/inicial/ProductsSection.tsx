@@ -4,6 +4,9 @@ import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { formatCurrency, type Product } from "../../data/products";
 import { useProducts } from "../../hooks/useProducts";
 
+const productSkeletonSlots = Array.from({ length: 6 }, (_, index) => index);
+const mobileProductSkeletonSlots = Array.from({ length: 3 }, (_, index) => index);
+
 const ProductCard = ({
   id,
   name,
@@ -41,6 +44,33 @@ const ProductCard = ({
       <span>Hoje, 16:46</span>
       <span>{city ?? "Paulista"} - {state ?? "PE"}</span>
     </p>
+  </article>
+);
+
+export const ProductCardSkeleton = ({ className = "" }: { className?: string }) => (
+  <article aria-hidden="true" className={`min-w-0 ${className}`}>
+    <div className="glass-skeleton relative aspect-square w-full rounded-[5px] shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+      <div className="glass-skeleton__shine" />
+      <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.12),rgba(255,255,255,0.28),rgba(255,255,255,0.08))]" />
+      <span className="absolute left-3 top-3 h-5 w-20 rounded-full bg-white/55 backdrop-blur-md" />
+      <div className="absolute inset-x-4 bottom-4 h-6 rounded-[18px] bg-white/30 backdrop-blur-md" />
+    </div>
+
+    <div className="mt-3 space-y-2">
+      <div className="h-[18px] w-11/12 rounded-full bg-white/70" />
+      <div className="h-[18px] w-8/12 rounded-full bg-white/50" />
+      <div className="h-[18px] w-6/12 rounded-full bg-white/45" />
+    </div>
+
+    <div className="mt-4 space-y-2">
+      <div className="h-[14px] w-16 rounded-full bg-white/35" />
+      <div className="h-[24px] w-24 rounded-full bg-white/70" />
+    </div>
+
+    <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1">
+      <div className="h-[14px] w-20 rounded-full bg-white/35" />
+      <div className="h-[14px] w-28 rounded-full bg-white/35" />
+    </div>
   </article>
 );
 
@@ -98,24 +128,64 @@ const MobileProductCarousel = ({ products }: { products: Product[] }) => {
   );
 };
 
+const LoadingMobileProductCarousel = () => (
+  <div className="[@media(min-width:1051px)]:hidden">
+    <div className="mt-4 flex items-center justify-between gap-3">
+      <button
+        aria-hidden="true"
+        className="flex h-10 w-10 items-center justify-center rounded-full border border-[#d7e8d4] bg-white/80 text-[#167307] shadow-[0_1px_2px_rgba(0,0,0,0.06)]"
+        tabIndex={-1}
+        type="button"
+      >
+        <FiChevronLeft size={20} />
+      </button>
+      <p className="text-center text-[12px] leading-[16px] text-[#476155]">
+        Carregando produtos com visual em vidro
+      </p>
+      <button
+        aria-hidden="true"
+        className="flex h-10 w-10 items-center justify-center rounded-full border border-[#d7e8d4] bg-white/80 text-[#167307] shadow-[0_1px_2px_rgba(0,0,0,0.06)]"
+        tabIndex={-1}
+        type="button"
+      >
+        <FiChevronRight size={20} />
+      </button>
+    </div>
+
+    <div
+      className="mt-4 flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+      aria-hidden="true"
+    >
+      {mobileProductSkeletonSlots.map((slot) => (
+        <div className="w-[min(78vw,300px)] shrink-0 snap-start" key={slot}>
+          <ProductCardSkeleton />
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
 type ProductsSectionProps = {
   className?: string;
 };
 
 const ProductsSection = ({ className = "mt-[70px]" }: ProductsSectionProps) => {
-  const { products } = useProducts();
+  const { products, loading } = useProducts();
   const visibleProducts = products.slice(0, 6);
 
   return (
-    <section className={`mx-auto w-[calc(100%-24px)] max-w-[1312px] px-0 sm:w-[calc(100%-70px)] ${className}`}>
+    <section
+      aria-busy={loading}
+      className={`mx-auto w-[calc(100%-24px)] max-w-[1312px] px-0 sm:w-[calc(100%-70px)] ${className}`}
+    >
       <h2 className="text-[23px] leading-[28px] text-[#071735]">
         Tecnologia assistiva em destaque
       </h2>
-      <MobileProductCarousel products={visibleProducts} />
+      {loading ? <LoadingMobileProductCarousel /> : <MobileProductCarousel products={visibleProducts} />}
       <div className="mt-4 hidden grid-cols-6 gap-x-[31px] [@media(min-width:1051px)]:grid">
-        {visibleProducts.map((product) => (
-          <ProductCard key={product.id} {...product} />
-        ))}
+        {loading
+          ? productSkeletonSlots.map((slot) => <ProductCardSkeleton key={slot} />)
+          : visibleProducts.map((product) => <ProductCard key={product.id} {...product} />)}
       </div>
     </section>
   );

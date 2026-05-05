@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { formatCurrency, type Product } from "../../data/products";
 import { useProducts } from "../../hooks/useProducts";
+import { ProductCardSkeleton } from "./ProductsSection";
 
 const ProductCard = ({
   id,
@@ -44,13 +45,58 @@ const ProductCard = ({
   </article>
 );
 
+const OfferHeroSkeleton = () => (
+  <article className="glass-skeleton self-start overflow-hidden rounded-[10px] px-5 py-6 sm:px-[31px] sm:pt-[20px]">
+    <div className="glass-skeleton__shine" />
+    <div className="mx-auto flex min-h-[530px] flex-col">
+      <div className="h-[34px] w-[180px] rounded-full bg-white/70 sm:h-[40px] sm:w-[220px]" />
+      <div className="mx-auto mt-4 aspect-square w-full max-w-[225px] rounded-[5px] bg-white/30" />
+      <div className="mt-[13px] h-[26px] w-[72%] rounded-full bg-white/65" />
+      <div className="mt-3 space-y-3">
+        <div className="h-[20px] w-full rounded-full bg-white/35" />
+        <div className="h-[20px] w-[86%] rounded-full bg-white/35" />
+      </div>
+      <div className="mt-[18px] h-[20px] w-[42%] rounded-full bg-white/35" />
+      <div className="mt-2 h-[38px] w-[52%] rounded-full bg-white/70" />
+      <div className="mt-[20px] flex flex-wrap gap-x-[31px] gap-y-1">
+        <div className="h-[20px] w-[150px] rounded-full bg-white/35" />
+        <div className="h-[20px] w-[130px] rounded-full bg-white/35" />
+      </div>
+    </div>
+  </article>
+);
+
 const OffersSection = () => {
-  const { products } = useProducts();
+  const { products, loading } = useProducts();
   const topOffers = products.slice(0, 4);
   const dailyOffer = products.find((product) => product.featured) ?? products[0];
 
-  if (!dailyOffer) {
+  if (!loading && !dailyOffer) {
     return null;
+  }
+
+  if (loading) {
+    return (
+      <section
+        aria-busy="true"
+        className="mx-auto mt-[23px] grid w-[calc(100%-24px)] max-w-[1312px] scroll-mt-[210px] grid-cols-1 items-start gap-7 sm:w-[calc(100%-70px)] [@media(min-width:1051px)]:grid-cols-[minmax(320px,428px)_minmax(0,1fr)] [@media(min-width:1051px)]:gap-[62px]"
+        id="ofertas"
+      >
+        <OfferHeroSkeleton />
+
+        <div className="pt-0 [@media(min-width:1051px)]:pt-[20px]">
+          <div className="mb-[16px] flex flex-wrap items-center gap-x-[50px] gap-y-2">
+            <div className="h-[25px] w-[110px] rounded-full bg-white/70" />
+            <div className="h-[14px] w-[160px] rounded-full bg-white/35" />
+          </div>
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4 xl:gap-x-[31px]">
+            {Array.from({ length: 4 }, (_, index) => index).map((slot) => (
+              <ProductCardSkeleton key={slot} />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
   }
 
   return (
