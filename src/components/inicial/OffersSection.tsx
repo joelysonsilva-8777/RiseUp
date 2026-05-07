@@ -1,155 +1,220 @@
 import { Link } from "react-router-dom";
+import { FiChevronRight, FiZap } from "react-icons/fi";
 import { formatCurrency, type Product } from "../../data/products";
 import { useProducts } from "../../hooks/useProducts";
 import { ProductCardSkeleton } from "./ProductsSection";
 
-const ProductCard = ({
-  id,
-  name,
-  oldPrice,
-  description,
-  image,
-  price,
-  category,
-  city,
-  state,
-}: Product) => (
+const offerSkeletonSlots = Array.from({ length: 4 }, (_, index) => index);
+
+const getPriceParts = (price: number) => {
+  const [integerPart, centsPart] = price.toFixed(2).split(".");
+
+  return {
+    cents: centsPart,
+    integer: Number(integerPart).toLocaleString("pt-BR"),
+  };
+};
+
+const getDiscountPercent = (price: number, oldPrice?: number) => {
+  if (!oldPrice || oldPrice <= price) {
+    return 0;
+  }
+
+  return Math.round(((oldPrice - price) / oldPrice) * 100);
+};
+
+const getInstallmentCount = (price: number) => {
+  if (price >= 10000) {
+    return 10;
+  }
+
+  if (price >= 2500) {
+    return 6;
+  }
+
+  return 4;
+};
+
+const OfferPrice = ({ oldPrice, price }: Pick<Product, "oldPrice" | "price">) => {
+  const { cents, integer } = getPriceParts(price);
+  const discountPercent = getDiscountPercent(price, oldPrice);
+
+  return (
+    <div className="mt-2">
+      {oldPrice ? (
+        <p className="text-[11px] leading-[13px] text-[#737373] line-through">{formatCurrency(oldPrice)}</p>
+      ) : null}
+      <p className="flex flex-wrap items-start gap-x-1 text-[#222]">
+        <span className="pt-[3px] text-[15px] leading-[18px]">R$</span>
+        <span className="text-[24px] font-normal leading-[28px]">{integer}</span>
+        <span className="pt-[2px] text-[12px] leading-[14px]">{cents}</span>
+        {discountPercent ? (
+          <span className="ml-1 mt-[6px] rounded-[3px] bg-[#e5f5ed] px-1 text-[12px] leading-[16px] text-[#00a650]">
+            {discountPercent}% OFF
+          </span>
+        ) : null}
+      </p>
+    </div>
+  );
+};
+
+const OfferBenefits = ({ compact = false, price }: Pick<Product, "price"> & { compact?: boolean }) => {
+  const installmentCount = getInstallmentCount(price);
+
+  return (
+    <div className={`${compact ? "mt-1" : "mt-2"} space-y-1`}>
+      <p className="text-[12px] font-medium leading-[16px] text-[#00a650]">
+        {installmentCount}x {formatCurrency(price / installmentCount)} sem juros
+      </p>
+      <p className="inline-block max-w-full rounded-[3px] bg-[#ffedd5] px-1 text-[12px] font-semibold leading-[16px] text-[#b45309]">
+        20% OFF Saldo no Acesse+ Infinity
+      </p>
+      <p className="flex items-center gap-1 text-[12px] font-semibold italic leading-[16px] text-[#00a650]">
+        <FiZap fill="currentColor" size={12} />
+        FULL {compact ? "SUPER" : ""}
+      </p>
+    </div>
+  );
+};
+
+const OfferProductCard = ({ id, image, name, oldPrice, price }: Product) => (
   <article className="min-w-0">
-    <Link className="block text-[#071735] no-underline" to={`/produto/${id}`}>
-      <div className="relative aspect-square w-full overflow-hidden rounded-[5px] bg-white text-[#071735] shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+    <Link className="group block text-[#222] no-underline" to={`/produto/${id}`}>
+      <div className="aspect-square overflow-hidden bg-[#f5f5f5]">
         <img
           alt={name}
-          className="h-full w-full object-contain p-4"
+          className="h-full w-full object-contain p-3 transition-transform duration-200 group-hover:scale-[1.035]"
           loading="lazy"
           src={image}
         />
-        <span className="absolute left-3 top-3 inline-flex max-w-[calc(100%-24px)] rounded-full bg-[#ecf8e8] px-3 py-1 text-[10px] uppercase leading-[13px] tracking-[0.12em] text-[#167307]">
-          {category}
-        </span>
       </div>
-      <h3 className="mt-3 min-h-[44px] text-[15px] leading-[20px] text-[#071735]">
+      <h3 className="mt-3 line-clamp-2 min-h-[38px] text-[13px] font-normal leading-[19px] text-[#333]">
         {name}
       </h3>
-      <p className="mt-2 min-h-[36px] text-[12px] leading-[18px] text-[#476155]">{description}</p>
+      <OfferPrice oldPrice={oldPrice} price={price} />
+      <OfferBenefits price={price} />
+      <p className="mt-1 text-[12px] font-semibold leading-[16px] text-[#00a650]">Frete gratis</p>
     </Link>
-    <div className="mt-4 min-h-[39px]">
-      {oldPrice ? (
-        <p className="text-[13px] leading-[15px] text-[#8493ad]">{formatCurrency(oldPrice)}</p>
-      ) : null}
-      <p className="text-[19px] leading-[24px] text-[#071735]">{formatCurrency(price)}</p>
-    </div>
-    <p className="mt-4 flex flex-wrap gap-x-6 gap-y-1 text-[11px] leading-[14px] text-[#0b1020]">
-      <span>Hoje, 16:46</span>
-      <span>{city ?? "Paulista"} - {state ?? "PE"}</span>
-    </p>
   </article>
 );
 
-const OfferHeroSkeleton = () => (
-  <article className="glass-skeleton self-start overflow-hidden rounded-[10px] px-5 py-6 sm:px-[31px] sm:pt-[20px]">
-    <div className="glass-skeleton__shine" />
-    <div className="mx-auto flex min-h-[530px] flex-col">
-      <div className="h-[34px] w-[180px] rounded-full bg-white/70 sm:h-[40px] sm:w-[220px]" />
-      <div className="mx-auto mt-4 aspect-square w-full max-w-[225px] rounded-[5px] bg-white/30" />
-      <div className="mt-[13px] h-[26px] w-[72%] rounded-full bg-white/65" />
-      <div className="mt-3 space-y-3">
-        <div className="h-[20px] w-full rounded-full bg-white/35" />
-        <div className="h-[20px] w-[86%] rounded-full bg-white/35" />
+const DailyOfferCard = ({ product }: { product: Product }) => (
+  <article className="overflow-hidden rounded-[5px] border border-[#dedede] bg-white shadow-[0_1px_2px_rgba(0,0,0,0.08)]">
+    <h2 className="px-[18px] pt-[16px] text-[18px] font-semibold leading-[23px] text-[#111]">Oferta do dia</h2>
+    <Link
+      className="grid min-h-[190px] grid-cols-[140px_minmax(0,1fr)] gap-5 px-4 py-4 text-[#222] no-underline [@media(min-width:1051px)]:block [@media(min-width:1051px)]:px-[18px] [@media(min-width:1051px)]:pb-[28px]"
+      to={`/produto/${product.id}`}
+    >
+      <div className="flex h-[132px] w-[132px] items-center justify-center overflow-hidden bg-[#f5f5f5] [@media(min-width:1051px)]:mx-auto [@media(min-width:1051px)]:mt-[27px] [@media(min-width:1051px)]:h-[210px] [@media(min-width:1051px)]:w-full">
+        <img alt={product.name} className="h-full w-full object-contain p-2 [@media(min-width:1051px)]:p-4" loading="lazy" src={product.image} />
       </div>
-      <div className="mt-[18px] h-[20px] w-[42%] rounded-full bg-white/35" />
-      <div className="mt-2 h-[38px] w-[52%] rounded-full bg-white/70" />
-      <div className="mt-[20px] flex flex-wrap gap-x-[31px] gap-y-1">
-        <div className="h-[20px] w-[150px] rounded-full bg-white/35" />
-        <div className="h-[20px] w-[130px] rounded-full bg-white/35" />
+      <div className="min-w-0 pt-1 [@media(min-width:1051px)]:pt-[16px]">
+        <h3 className="line-clamp-2 text-[13px] font-normal leading-[18px] text-[#333] [@media(min-width:1051px)]:min-h-[42px] [@media(min-width:1051px)]:text-[14px] [@media(min-width:1051px)]:leading-[20px]">
+          {product.name}
+        </h3>
+        <OfferPrice oldPrice={product.oldPrice} price={product.price} />
+        <OfferBenefits compact price={product.price} />
       </div>
-    </div>
+    </Link>
+    <Link
+      className="flex h-[48px] items-center justify-between border-t border-[#e6e6e6] px-4 text-[14px] font-semibold leading-[18px] text-[#3483fa] no-underline [@media(min-width:1051px)]:hidden"
+      to="/buscar"
+    >
+      <span>Ver todas as ofertas</span>
+      <FiChevronRight size={22} />
+    </Link>
   </article>
+);
+
+const Dots = () => (
+  <div aria-hidden="true" className="flex items-center gap-[4px]">
+    <span className="h-[6px] w-[6px] rounded-full bg-[#3483fa]" />
+    <span className="h-[6px] w-[6px] rounded-full bg-[#dedede]" />
+    <span className="h-[6px] w-[6px] rounded-full bg-[#dedede]" />
+    <span className="h-[6px] w-[6px] rounded-full bg-[#dedede]" />
+    <span className="h-[6px] w-[6px] rounded-full bg-[#dedede]" />
+  </div>
+);
+
+const OffersPanel = ({ products }: { products: Product[] }) => (
+  <div className="relative hidden overflow-visible rounded-[5px] border border-[#dedede] bg-white pb-[28px] shadow-[0_1px_2px_rgba(0,0,0,0.08)] [@media(min-width:1051px)]:block">
+    <div className="flex items-center justify-between gap-4 px-[18px] pt-[16px]">
+      <div className="flex min-w-0 items-baseline gap-3">
+        <h2 className="text-[18px] font-semibold leading-[23px] text-[#111]">Ofertas</h2>
+        <Link className="shrink-0 text-[12px] leading-[16px] text-[#3483fa] no-underline" to="/buscar">
+          Mostrar todas as ofertas
+        </Link>
+      </div>
+      <Dots />
+    </div>
+    <div className="mt-[29px] grid grid-cols-4 gap-x-[18px] px-[18px]">
+      {products.map((product) => (
+        <OfferProductCard key={product.id} {...product} />
+      ))}
+    </div>
+    <Link
+      aria-label="Ver mais ofertas"
+      className="absolute right-[-28px] top-1/2 hidden h-[58px] w-[58px] -translate-y-1/2 items-center justify-center rounded-full bg-white text-[#3483fa] shadow-[0_1px_5px_rgba(0,0,0,0.22)] no-underline [@media(min-width:1051px)]:flex"
+      to="/buscar"
+    >
+      <FiChevronRight size={28} />
+    </Link>
+  </div>
+);
+
+const OfferHeroSkeleton = () => (
+  <article className="overflow-hidden rounded-[5px] border border-[#dedede] bg-white px-[18px] py-[16px] shadow-[0_1px_2px_rgba(0,0,0,0.08)]">
+    <div className="h-[23px] w-[130px] animate-pulse rounded-full bg-[#ededed]" />
+    <div className="mt-7 h-[210px] animate-pulse bg-[#f0f0f0]" />
+    <div className="mt-4 h-[18px] w-full animate-pulse rounded-full bg-[#ededed]" />
+    <div className="mt-2 h-[18px] w-8/12 animate-pulse rounded-full bg-[#ededed]" />
+    <div className="mt-4 h-[28px] w-28 animate-pulse rounded-full bg-[#ededed]" />
+  </article>
+);
+
+const OffersPanelSkeleton = () => (
+  <div className="hidden rounded-[5px] border border-[#dedede] bg-white px-[18px] pb-[28px] pt-[16px] shadow-[0_1px_2px_rgba(0,0,0,0.08)] [@media(min-width:1051px)]:block">
+    <div className="flex items-center justify-between">
+      <div className="h-[23px] w-[175px] animate-pulse rounded-full bg-[#ededed]" />
+      <Dots />
+    </div>
+    <div className="mt-[29px] grid grid-cols-4 gap-x-[18px]">
+      {offerSkeletonSlots.map((slot) => (
+        <ProductCardSkeleton key={slot} />
+      ))}
+    </div>
+  </div>
 );
 
 const OffersSection = () => {
   const { products, loading } = useProducts();
-  const topOffers = products.slice(0, 4);
   const dailyOffer = products.find((product) => product.featured) ?? products[0];
+  const topOffers = products.filter((product) => product.id !== dailyOffer?.id).slice(0, 4);
 
   if (!loading && !dailyOffer) {
     return null;
   }
 
-  if (loading) {
+  if (loading || !dailyOffer) {
     return (
       <section
         aria-busy="true"
-        className="mx-auto mt-[23px] grid w-[calc(100%-24px)] max-w-[1312px] scroll-mt-[210px] grid-cols-1 items-start gap-7 sm:w-[calc(100%-70px)] [@media(min-width:1051px)]:grid-cols-[minmax(320px,428px)_minmax(0,1fr)] [@media(min-width:1051px)]:gap-[62px]"
+        className="mx-auto mt-[23px] grid w-[calc(100%-24px)] max-w-[1312px] scroll-mt-[210px] grid-cols-1 items-start gap-3 sm:w-[calc(100%-70px)] [@media(min-width:1051px)]:grid-cols-[305px_minmax(0,1fr)] [@media(min-width:1051px)]:gap-[14px]"
         id="ofertas"
       >
         <OfferHeroSkeleton />
-
-        <div className="pt-0 [@media(min-width:1051px)]:pt-[20px]">
-          <div className="mb-[16px] flex flex-wrap items-center gap-x-[50px] gap-y-2">
-            <div className="h-[25px] w-[110px] rounded-full bg-white/70" />
-            <div className="h-[14px] w-[160px] rounded-full bg-white/35" />
-          </div>
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4 xl:gap-x-[31px]">
-            {Array.from({ length: 4 }, (_, index) => index).map((slot) => (
-              <ProductCardSkeleton key={slot} />
-            ))}
-          </div>
-        </div>
+        <OffersPanelSkeleton />
       </section>
     );
   }
 
   return (
     <section
-      className="mx-auto mt-[23px] grid w-[calc(100%-24px)] max-w-[1312px] scroll-mt-[210px] grid-cols-1 items-start gap-7 sm:w-[calc(100%-70px)] [@media(min-width:1051px)]:grid-cols-[minmax(320px,428px)_minmax(0,1fr)] [@media(min-width:1051px)]:gap-[62px]"
+      className="mx-auto mt-[23px] grid w-[calc(100%-24px)] max-w-[1312px] scroll-mt-[210px] grid-cols-1 items-start gap-3 sm:w-[calc(100%-70px)] [@media(min-width:1051px)]:grid-cols-[305px_minmax(0,1fr)] [@media(min-width:1051px)]:gap-[14px]"
       id="ofertas"
     >
-      <article className="self-start overflow-hidden rounded-[10px] bg-white px-5 py-6 sm:px-[31px] sm:pt-[20px]">
-        <h1 className="text-[27px] leading-[34px] text-[#071735] sm:text-[33px] sm:leading-[40px]">Oferta do dia</h1>
-        <Link className="block text-[#071735] no-underline" to={`/produto/${dailyOffer.id}`}>
-          <div className="relative mx-auto mt-4 aspect-square w-full max-w-[205px] overflow-hidden rounded-[5px] bg-[#f7faf6] sm:max-w-[225px]">
-            <img
-              alt={dailyOffer.name}
-              className="h-full w-full object-contain p-5"
-              loading="lazy"
-              src={dailyOffer.image}
-            />
-            <span className="absolute left-3 top-3 inline-flex rounded-full bg-[#ecf8e8] px-3 py-1 text-[11px] uppercase tracking-[0.14em] text-[#167307]">
-              {dailyOffer.category}
-            </span>
-          </div>
-          <h2 className="mt-[13px] text-[20px] leading-[26px] text-[#071735] sm:text-[21px]">
-            {dailyOffer.name}
-          </h2>
-        </Link>
-        <p className="mt-3 text-[14px] leading-[20px] text-[#476155] sm:text-[15px]">{dailyOffer.description}</p>
-        {dailyOffer.oldPrice ? (
-          <p className="mt-[18px] text-[17px] leading-[20px] text-[#8493ad]">
-            {formatCurrency(dailyOffer.oldPrice)}
-          </p>
-        ) : null}
-        <p className="text-[30px] leading-[38px] text-[#071735] sm:text-[32px]">
-          {formatCurrency(dailyOffer.price)}
-        </p>
-        <p className="mt-[20px] flex flex-wrap gap-x-[31px] gap-y-1 text-[15px] leading-[20px] text-[#0b1020] sm:text-[21px] sm:leading-[25px]">
-          <span>Hoje, 16:46</span>
-          <span>{dailyOffer.sellerName ?? "Acesse+"} - {dailyOffer.state ?? "PE"}</span>
-        </p>
-      </article>
-
-      <div className="pt-0 [@media(min-width:1051px)]:pt-[20px]">
-        <div className="mb-[16px] flex flex-wrap items-center gap-x-[50px] gap-y-2">
-          <h2 className="text-[21px] leading-[25px] text-[#071735]">Ofertas</h2>
-          <Link className="text-[11px] leading-[14px] text-[#4188f7] no-underline" to="/buscar">
-            mostrar todas as ofertas
-          </Link>
-        </div>
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4 xl:gap-x-[31px]">
-          {topOffers.map((product) => (
-            <ProductCard key={product.id} {...product} />
-          ))}
-        </div>
-      </div>
+      <DailyOfferCard product={dailyOffer} />
+      <OffersPanel products={topOffers.length > 0 ? topOffers : products.slice(0, 4)} />
     </section>
   );
 };
