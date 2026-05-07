@@ -103,6 +103,19 @@ const TelaCadastro: FunctionComponent = () => {
         { merge: true }
       );
 
+      await setDoc(
+        doc(firestore, "sellerProfiles", credential.user.uid),
+        {
+          displayName: fullName,
+          email,
+          photoURL: "",
+          sellerId: credential.user.uid,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true }
+      );
+
       navigate("/");
     } catch {
       setErrorMessage("Não foi possível criar a conta agora. Confira os dados e tente novamente.");

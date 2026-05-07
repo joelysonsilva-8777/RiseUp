@@ -4,15 +4,26 @@ export type Product = {
   id: string;
   name: string;
   category: string;
+  listingGroup?: "produtos" | "tecnologia" | "aparelhos" | "outros";
+  searchTerm?: string;
   description: string;
   image: string;
+  images?: string[];
   price: number;
   oldPrice?: number;
   sellerId?: string;
   sellerName?: string;
+  sellerPhotoURL?: string;
+  sellerCity?: string;
+  sellerState?: string;
   city?: string;
   state?: string;
   stock?: number;
+  sku?: string;
+  condition?: "novo" | "usado" | "recondicionado" | "caixa-aberta";
+  attributes?: Record<string, string | string[]>;
+  tags?: string[];
+  catalogCode?: string;
   featured?: boolean;
   createdAt?: Timestamp | null;
   updatedAt?: Timestamp | null;
@@ -27,9 +38,13 @@ export const defaultProducts: Product[] = [
     category: "Mao bionica",
     description: "Sensores tateis, pegada precisa e resposta motora fina.",
     image: "/produto-cadeira-thumb-1.png",
+    images: ["/produto-cadeira-thumb-1.png"],
     oldPrice: 52000,
     price: 48000,
     sellerName: "Acesse+ Labs",
+    listingGroup: "aparelhos",
+    condition: "novo",
+    tags: ["protese", "mao bionica", "mobilidade"],
     city: "Paulista",
     state: "PE",
     stock: 4,
@@ -41,8 +56,12 @@ export const defaultProducts: Product[] = [
     category: "Visao",
     description: "Reconhece placas, obstaculos e contexto imediato.",
     image: "/produto-cadeira-thumb-2.png",
+    images: ["/produto-cadeira-thumb-2.png"],
     price: 9800,
     sellerName: "Acesse+ Labs",
+    listingGroup: "tecnologia",
+    condition: "novo",
+    tags: ["visao", "leitura", "ambiente"],
     city: "Recife",
     state: "PE",
     stock: 8,
@@ -54,8 +73,12 @@ export const defaultProducts: Product[] = [
     category: "Acesso tatil",
     description: "Feedback silencioso, USB-C e teclas de alta precisao.",
     image: "/produto-cadeira-thumb-3.png",
+    images: ["/produto-cadeira-thumb-3.png"],
     price: 2400,
     sellerName: "Acesse+ Labs",
+    listingGroup: "produtos",
+    condition: "novo",
+    tags: ["braille", "teclado", "tatil"],
     city: "Olinda",
     state: "PE",
     stock: 15,
@@ -67,8 +90,12 @@ export const defaultProducts: Product[] = [
     category: "Controle por olhar",
     description: "Cursor responsivo para navegacao sem toque.",
     image: "/produto-cadeira-thumb-4.png",
+    images: ["/produto-cadeira-thumb-4.png"],
     price: 7900,
     sellerName: "Acesse+ Labs",
+    listingGroup: "tecnologia",
+    condition: "novo",
+    tags: ["mouse ocular", "controle", "olhar"],
     city: "Jaboatao",
     state: "PE",
     stock: 6,
@@ -80,9 +107,17 @@ export const defaultProducts: Product[] = [
     category: "Mobilidade",
     description: "Controle por app e assistencia de percurso interno.",
     image: "/produto-cadeira-main.png",
+    images: [
+      "/produto-cadeira-main.png",
+      "/produto-cadeira-thumb-1.png",
+      "/produto-cadeira-thumb-2.png",
+    ],
     oldPrice: 12500,
     price: 11900,
     sellerName: "Acesse+ Labs",
+    listingGroup: "aparelhos",
+    condition: "novo",
+    tags: ["cadeira", "mobilidade", "navegacao"],
     city: "Paulista",
     state: "PE",
     stock: 5,
@@ -94,8 +129,12 @@ export const defaultProducts: Product[] = [
     category: "Audicao",
     description: "Conversa assistida sem bloquear o ouvido externo.",
     image: "/produto-cadeira-thumb-5.png",
+    images: ["/produto-cadeira-thumb-5.png"],
     price: 1350,
     sellerName: "Acesse+ Labs",
+    listingGroup: "produtos",
+    condition: "novo",
+    tags: ["audicao", "fone", "conducao ossea"],
     city: "Recife",
     state: "PE",
     stock: 18,
@@ -126,7 +165,17 @@ export const filterProducts = (products: Product[], query: string) => {
   }
 
   return products.filter((product) =>
-    [product.name, product.category, product.description, product.city, product.state]
+    [
+      product.name,
+      product.category,
+      product.description,
+      product.city,
+      product.state,
+      product.searchTerm,
+      product.listingGroup,
+      ...(product.tags ?? []),
+      ...Object.values(product.attributes ?? {}).flatMap((value) => (Array.isArray(value) ? value : [value])),
+    ]
       .filter(Boolean)
       .some((field) => field!.toLowerCase().includes(normalizedQuery))
   );

@@ -201,7 +201,7 @@ const DeliveryModal = ({ total, onFinish }: { total: number; onFinish: () => voi
         type="button"
       >
         <FiCheck />
-        Finalizar pedido
+        Ir para pagamento
       </button>
     </div>
   </aside>
@@ -210,32 +210,19 @@ const DeliveryModal = ({ total, onFinish }: { total: number; onFinish: () => voi
 const TelaCarrinho: FunctionComponent<TelaCarrinhoProps> = ({ step = "cart" }) => {
   const navigate = useNavigate();
   const { items, itemCount, subtotal, loading, updateQuantity, removeItem, clearCart } = useCart();
-  const [finished, setFinished] = useState(false);
   const isModal = step !== "cart";
   const delivery = items.length > 0 ? shippingValue : 0;
   const total = subtotal + delivery;
 
-  const finishOrder = async () => {
-    await clearCart();
-    setFinished(true);
-    navigate("/carrinho");
+  const goToPayment = () => {
+    navigate("/compra");
   };
 
   return (
     <main className="min-h-screen w-full overflow-x-hidden bg-white font-['Montserrat',sans-serif] text-black [&_h1]:m-0 [&_h2]:m-0 [&_p]:m-0">
       <AppHeader showNav={false} />
       <div className={`relative min-h-[760px] ${isModal ? "bg-[#d9d9d9]" : "bg-white"}`}>
-        {finished ? (
-          <section className="mx-auto max-w-[920px] px-4 py-14 text-center">
-            <h1 className="text-[30px] leading-[38px] text-[#257a0d]">Pedido finalizado</h1>
-            <p className="mt-3 text-[14px] leading-[22px] text-[#52606d]">
-              Obrigado pela compra. O carrinho foi limpo para o proximo teste.
-            </p>
-            <Link className="mt-8 inline-flex h-11 items-center justify-center bg-[#167307] px-5 text-[14px] text-white no-underline" to="/">
-              Voltar para a loja
-            </Link>
-          </section>
-        ) : items.length === 0 && !loading ? (
+        {items.length === 0 && !loading ? (
           <EmptyCart />
         ) : (
           <section className="mx-auto w-full max-w-[1320px] px-4 py-8 sm:px-8">
@@ -335,7 +322,7 @@ const TelaCarrinho: FunctionComponent<TelaCarrinhoProps> = ({ step = "cart" }) =
         )}
 
         {step === "address" ? <AddressModal /> : null}
-        {step === "delivery" ? <DeliveryModal onFinish={() => void finishOrder()} total={total} /> : null}
+        {step === "delivery" ? <DeliveryModal onFinish={goToPayment} total={total} /> : null}
       </div>
     </main>
   );

@@ -13,6 +13,8 @@ import TelaProduto from "./pages/TelaProduto/index";
 import TelaPerfil from "./pages/TelaPerfil/index";
 import TelaBusca from "./pages/TelaBusca/index";
 import CadastrarProduto from "./pages/CadastrarProduto/index";
+import TelaCompra from "./pages/TelaCompra/index";
+import TelaMensagens from "./pages/TelaMensagens/index";
 
 function App() {
   const action = useNavigationType();
@@ -61,6 +63,8 @@ function App() {
       case "/carrinho":
       case "/carrinho/endereco":
       case "/carrinho/entrega":
+      case "/compra":
+      case "/mensagens":
         title = "";
         metaDescription = "";
         break;
@@ -94,6 +98,9 @@ function App() {
       <Route path="/carrinho" element={<TelaCarrinho />} />
       <Route path="/carrinho/endereco" element={<TelaCarrinho step="address" />} />
       <Route path="/carrinho/entrega" element={<TelaCarrinho step="delivery" />} />
+      <Route path="/compra" element={<TelaCompra />} />
+      <Route path="/mensagens" element={<TelaMensagens />} />
+      <Route path="/mensagens/:threadId" element={<TelaMensagens />} />
     </Routes>
   );
 }

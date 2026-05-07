@@ -9,7 +9,7 @@ import {
 } from "react";
 import { useNavigate } from "react-router-dom";
 import { updateProfile as updateAuthProfile } from "firebase/auth";
-import { doc, serverTimestamp, setDoc } from "firebase/firestore";
+import { collection, doc, getDocs, query, serverTimestamp, setDoc, where, writeBatch } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { FiCamera, FiCheck, FiPackage, FiSave, FiX, FiZoomIn, FiZoomOut } from "react-icons/fi";
 import { AppHeader } from "../../components/AppHeader";
@@ -401,6 +401,38 @@ const TelaPerfil = () => {
         { merge: true }
       );
 
+      await setDoc(
+        doc(firestore, "sellerProfiles", user.uid),
+        {
+          bio,
+          city,
+          displayName: fullName || user.displayName || user.email || "Vendedor Acesse+",
+          email: user.email ?? "",
+          photoURL: uploadedPhotoURL,
+          sellerId: user.uid,
+          state,
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true }
+      );
+
+      const sellerDisplayName = fullName || user.displayName || user.email || "Vendedor Acesse+";
+      const sellerProducts = await getDocs(query(collection(firestore, "products"), where("sellerId", "==", user.uid)));
+      const sellerProductsBatch = writeBatch(firestore);
+
+      sellerProducts.forEach((productDoc) => {
+        sellerProductsBatch.update(productDoc.ref, {
+          sellerCity: city,
+          sellerName: sellerDisplayName,
+          sellerPhotoURL: uploadedPhotoURL,
+          sellerState: state,
+          updatedAt: serverTimestamp(),
+        });
+      });
+
+      if (!sellerProducts.empty) {
+        await sellerProductsBatch.commit();
+      }
       await refreshProfile();
       setSuccessMessage("Perfil atualizado com sucesso.");
       setPhotoFile(null);
