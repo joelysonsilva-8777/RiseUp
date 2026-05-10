@@ -11,6 +11,7 @@ import TelaCadastro from "./pages/TelaCadastro/index";
 import TelaLogin from "./pages/TelaLogin/index";
 import TelaProduto from "./pages/TelaProduto/index";
 import TelaPerfil from "./pages/TelaPerfil/index";
+import TelaListaProdutos from "./pages/TelaListaProdutos/index";
 
 function App() {
   const action = useNavigationType();
@@ -55,6 +56,10 @@ function App() {
         title = "";
         metaDescription = "";
         break;
+      case "/lista-produtos":
+        title = "Produtos - Acesse+";
+        metaDescription = "Encontre produtos de tecnologia assistiva e acessibilidade.";
+        break;
       case "/produto":
       case "/carrinho":
       case "/carrinho/endereco":
@@ -89,7 +94,9 @@ function App() {
       <Route path="/carrinho" element={<TelaCarrinho />} />
       <Route path="/carrinho/endereco" element={<TelaCarrinho step="address" />} />
       <Route path="/carrinho/entrega" element={<TelaCarrinho step="delivery" />} />
+      <Route path="/lista-produtos" element={<TelaListaProdutos />} />
     </Routes>
   );
 }
+
 export default App;

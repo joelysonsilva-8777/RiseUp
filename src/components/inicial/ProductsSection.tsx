@@ -1,72 +1,16 @@
 import { useRef } from "react";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { Link } from "react-router-dom";
+import type { Product } from "../../data/products";
 
-type Product = {
-  name: string;
-  category: string;
-  description: string;
-  image: string;
-  oldPrice?: string;
-  price: string;
-};
+const defaultProducts: Product[] = [];
 
-const defaultProducts: Product[] = [
-  {
-    name: "Prótese biônica de mão modular",
-    category: "Mão biônica",
-    description: "Sensores táteis, pegada precisa e resposta motora fina.",
-    image: "/produto-cadeira-thumb-1.png",
-    oldPrice: "Sob consulta",
-    price: "R$ 48.000",
-  },
-  {
-    name: "Óculos assistivo com leitura de ambiente",
-    category: "Visão",
-    description: "Reconhece placas, obstáculos e contexto imediato.",
-    image: "/produto-cadeira-thumb-2.png",
-    price: "R$ 9.800",
-  },
-  {
-    name: "Teclado braille mecânico premium",
-    category: "Acesso tátil",
-    description: "Feedback silencioso, USB-C e teclas de alta precisão.",
-    image: "/produto-cadeira-thumb-3.png",
-    price: "R$ 2.400",
-  },
-  {
-    name: "Mouse ocular com calibração rápida",
-    category: "Controle por olhar",
-    description: "Cursor responsivo para navegação sem toque.",
-    image: "/produto-cadeira-thumb-4.png",
-    price: "R$ 7.900",
-  },
-  {
-    name: "Cadeira motorizada com navegação inteligente",
-    category: "Mobilidade",
-    description: "Controle por app e assistência de percurso interno.",
-    image: "/produto-cadeira-main.png",
-    oldPrice: "A partir de R$ 12.500",
-    price: "R$ 11.900",
-  },
-  {
-    name: "Fone de condução óssea clínica",
-    category: "Audição",
-    description: "Conversa assistida sem bloquear o ouvido externo.",
-    image: "/produto-cadeira-thumb-5.png",
-    price: "R$ 1.350",
-  },
-];
-
-const ProductCard = ({
-  name,
-  image,
-  oldPrice,
-  category,
-  description,
-  price,
-}: Product) => (
-  <article className="min-w-0">
-    <div className="relative aspect-square w-full overflow-hidden rounded-[5px] bg-white text-[#071735] shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+const ProductCard = ({ id, name, image, oldPrice, category, description, price }: Product) => (
+  <Link
+    to={`/produto?id=${id}`}
+    className="min-w-0 no-underline group"
+  >
+    <div className="relative aspect-square w-full overflow-hidden rounded-[5px] bg-white text-[#071735] shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-shadow duration-200 group-hover:shadow-[0_4px_12px_rgba(22,115,7,0.15)]">
       <img
         alt={name}
         className="h-full w-full object-contain p-4"
@@ -77,7 +21,9 @@ const ProductCard = ({
         {category}
       </span>
     </div>
-    <h3 className="mt-3 min-h-[44px] text-[15px] leading-[20px] text-[#071735]">{name}</h3>
+    <h3 className="mt-3 min-h-[44px] text-[15px] leading-[20px] text-[#071735] transition-colors group-hover:text-[#167307]">
+      {name}
+    </h3>
     <p className="mt-2 min-h-[36px] text-[12px] leading-[18px] text-[#476155]">{description}</p>
     <div className="mt-4 min-h-[39px]">
       {oldPrice ? (
@@ -89,19 +35,15 @@ const ProductCard = ({
       <span>Hoje, 16:46</span>
       <span>Paulista - PE</span>
     </p>
-  </article>
+  </Link>
 );
 
-const MobileProductCarousel = () => {
+const MobileProductCarousel = ({ products }: { products: Product[] }) => {
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
   const scrollByAmount = (direction: -1 | 1) => {
     const container = scrollRef.current;
-
-    if (!container) {
-      return;
-    }
-
+    if (!container) return;
     container.scrollBy({
       left: direction * Math.max(container.clientWidth * 0.82, 240),
       behavior: "smooth",
@@ -136,7 +78,7 @@ const MobileProductCarousel = () => {
         ref={scrollRef}
         className="mt-4 flex gap-3 overflow-x-auto scroll-smooth pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
       >
-        {defaultProducts.map((product, index) => (
+        {products.map((product, index) => (
           <div className="w-[min(78vw,300px)] shrink-0 snap-start" key={`${product.name}-${index}`}>
             <ProductCard {...product} />
           </div>
@@ -152,16 +94,14 @@ type ProductsSectionProps = {
   products?: Product[];
 };
 
-const ProductsSection = ({ 
+const ProductsSection = ({
   className = "mt-[70px]",
   title = "Tecnologia assistiva em destaque",
-  products = defaultProducts  // renomeia o array atual para defaultProducts
+  products = defaultProducts,
 }: ProductsSectionProps) => (
   <section className={`mx-auto w-[calc(100%-24px)] max-w-[1312px] px-0 sm:w-[calc(100%-70px)] ${className}`}>
-    <h2 className="text-[23px] leading-[28px] text-[#071735]">
-      {title}
-    </h2>
-    <MobileProductCarousel />
+    <h2 className="text-[23px] leading-[28px] text-[#071735]">{title}</h2>
+    <MobileProductCarousel products={products} />
     <div className="mt-4 hidden grid-cols-6 gap-x-[31px] [@media(min-width:1051px)]:grid">
       {products.map((product, index) => (
         <ProductCard key={`${product.name}-${index}`} {...product} />
