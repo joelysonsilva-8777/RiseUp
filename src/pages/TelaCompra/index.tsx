@@ -3,6 +3,8 @@ import { addDoc, collection, doc, serverTimestamp, setDoc } from "firebase/fires
 import { Link, useNavigate } from "react-router-dom";
 import { FiCreditCard, FiHeadphones, FiSmartphone, FiX } from "react-icons/fi";
 import { AppHeader } from "../../components/AppHeader";
+import FooterSection from "../../components/inicial/FooterSection";
+import ProductsSection from "../../components/inicial/ProductsSection";
 import { useAuth } from "../../context/AuthContext";
 import { useCart, type CartItem } from "../../context/CartContext";
 import { formatCurrency } from "../../data/products";
@@ -711,6 +713,8 @@ const TelaCompra: FunctionComponent = () => {
       <main className="min-h-screen bg-white font-['Montserrat',sans-serif] text-black">
         <AppHeader showNav={false} />
         <CompletedCheckout orderId={completedOrderId} />
+        <ProductsSection className="mb-[56px] mt-[24px]" />
+        <FooterSection />
       </main>
     );
   }
@@ -720,6 +724,8 @@ const TelaCompra: FunctionComponent = () => {
       <main className="min-h-screen bg-white font-['Montserrat',sans-serif] text-black">
         <AppHeader showNav={false} />
         <EmptyCheckout />
+        <ProductsSection className="mb-[56px] mt-[24px]" />
+        <FooterSection />
       </main>
     );
   }
@@ -763,6 +769,9 @@ const TelaCompra: FunctionComponent = () => {
 
         <CheckoutSupportFooter />
       </section>
+
+      <ProductsSection className="mb-[56px] mt-[10px]" />
+      <FooterSection />
 
       {activeDialog ? (
         <CheckoutDialog
