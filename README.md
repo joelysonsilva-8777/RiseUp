@@ -1,432 +1,543 @@
+# Acesse+
 
-  # Acesse+
+Marketplace acessível construído com React, TypeScript, Tailwind CSS, Firebase e integrações diretas com a API da OpenAI.
 
-  Marketplace acessível construído com React, TypeScript, Tailwind e Firebase.
+Este README funciona como documento de reunião e referência técnica do estado atual do projeto. Ele descreve o que já está funcionando, como a aplicação foi organizada, quais decisões de interface foram tomadas, quais integrações de IA existem e o que ainda precisa evoluir.
 
-  Este README foi escrito como documento de reunião e também como referência técnica do estado atual do projeto. Ele descreve o que já está funcionando, como a aplicação foi montada, por que certas decisões de interface foram tomadas e o que ainda está pendente.
+## Resumo Executivo
 
-  ## Resumo executivo
+O Acesse+ é uma aplicação de marketplace com foco em acessibilidade, autonomia e tecnologia assistiva. A experiência cobre descoberta de produtos, busca, cadastro, login, carrinho, checkout, perfil, criação de anúncios, conversa com vendedores, avaliações, loja do vendedor e assistente de IA contextual.
 
-  O Acesse+ é uma interface de marketplace com foco em acessibilidade, leitura rápida e caminhos curtos para ações principais. A navegação principal cobre home, login, cadastro, produto, carrinho e perfil, enquanto a página inicial foi desenhada para permitir descoberta rápida de produtos. O cabeçalho mostra o nome do usuário logado quando existe sessão ativa, e volta para `Entrar` quando não há conta autenticada.
+A base visual segue uma identidade verde, clara e utilitária, com navegação curta e prioridade para ações de compra, venda e suporte. A aplicação já usa Firebase para autenticação, persistência, storage e regras de segurança, além de rotas serverless em `api/` para comunicação com modelos da OpenAI.
 
-  O projeto está em fase de evolução. A base visual está forte, mas ainda existem partes estáticas ou visuais que serão ligadas a dados reais depois, como busca, cartões de categoria, alguns botões de suporte e controles do painel de acessibilidade.
+## Estado Atual do Projeto
 
-  ## Estado atual do projeto
+- Home com hero em carrossel, imagens desktop/mobile separadas, setas no desktop, bolinhas de navegação, pausa ao passar o mouse e faixa de anúncios deslizante no header.
+- Navbar responsivo com busca, carrinho, menu mobile, dropdown de perfil e menu autenticado com opções de compra, histórico, perguntas, opiniões, Acesse+ Infinity, conversa com vendedor, vender/criar produto e logout.
+- Login com Firebase Auth por e-mail/senha e recuperação de senha por e-mail.
+- Cadastro com Firebase Auth, gravação em `users/{uid}` e criação/merge de `sellerProfiles/{uid}`.
+- Painel de acessibilidade em login/cadastro com switches funcionais, controle de fonte `+/-` e modo claro parcial.
+- Perfil redesenhado com navegação lateral, cards de conta, edição de dados, upload de foto, propagação de dados do vendedor para produtos e telas WIP para funções ainda não implementadas.
+- Catálogo de produtos vindo do Firestore, com fallback para dados locais em `src/data/products.ts`.
+- Busca real em `/buscar`, filtrando produtos por nome, categoria, descrição, localização, termo de busca, grupo, tags e atributos.
+- Produto com galeria, dados do vendedor, seguir, compartilhar, comentários, avaliações, produtos similares e opção de conversar com vendedor.
+- Carrinho persistente: usa `localStorage` para visitante e `users/{uid}/private/cart` no Firestore para usuário logado.
+- Checkout com etapas de carrinho, endereço, entrega e compra; ao finalizar, grava pedidos em `users/{uid}/orders` e marca compras em `productPurchases`.
+- Tela de criar produto protegida por login, com cadastro por palavras-chave, fotos, atributos, tags, preço, estoque e upload para Storage.
+- Identificação de produto por foto usando `/api/product-identify` e OpenAI Vision para preencher título, descrição, atributos, tags, condição, SKU e preço estimado.
+- Chat entre comprador e vendedor em `/mensagens`, protegido por login, com threads em `messageThreads`, anexos de imagem, produto, pedido, compra pelo chat e avaliação de atendimento.
+- Notificações de novas mensagens no header e via Notification API do navegador quando permitido.
+- Loja do vendedor em `/loja/:sellerId`, com capa editável, categorias, sobre a loja, ordenação de produtos, seguidores, seguir e compartilhar.
+- Assistente flutuante Acesse+ em `AssistantWidget`, usando `/api/assistant`, com respostas limitadas ao contexto do site e produtos.
+- Footer com verde alinhado ao navbar/searchbar.
+- Responsividade mobile revisada nas telas públicas principais, com ajustes em hero, navbar, login, cadastro, produto, carrinho, compra e busca.
 
-  - Home com hero, atalhos, ofertas em destaque, bloco de cadastro, card de comunidade social, categorias e rodapé.
-  - Login com Firebase Auth usando e-mail e senha.
-  - Cadastro com Firebase Auth e gravação do perfil no Firestore em `users/{uid}`.
-  - Perfil com edição de dados, foto com recorte local e upload para Storage.
-  - Header com estado autenticado: mostra o primeiro nome do usuário ou `Entrar` quando não existe sessão.
-  - Carrinho e produto já possuem telas próprias e fluxo de checkout em etapas.
-  - As telas principais foram reorganizadas em subpastas próprias em `src/pages/<Tela>/index.tsx`.
-  - Regras de segurança versionadas no repositório para Firestore, Storage e Realtime Database.
-  - A busca do navbar está estilizada e pronta visualmente, mas ainda não filtra produtos.
-  - Os botões de login com iCloud e Google são visuais por enquanto.
-  - O painel de acessibilidade do login/cadastro é visual e ainda não controla recursos reais.
-  - As categorias e vários links do footer ainda são pontos de navegação/placeholder, não filtros dinâmicos.
+## Tecnologias e Bibliotecas
 
-  ## Tecnologias e bibliotecas
+| Tecnologia | Uso no projeto | Observação |
+| --- | --- | --- |
+| React 19 | Interface principal | Componentização das telas e estados locais |
+| TypeScript 5 | Tipagem | Tipos para rotas, produtos, carrinho, perfil e dados do Firebase |
+| React Router DOM 7 | Roteamento | Rotas públicas, rotas protegidas e parâmetros como `produto/:productId` |
+| Firebase 12 | Auth, Firestore, Storage, Realtime Database | Base de autenticação, catálogo, carrinho, pedidos, mensagens e arquivos |
+| Tailwind CSS 4 | Estilo | Classes utilitárias com layout responsivo |
+| Vite 6 | Build e dev server | Ambiente local e build de produção |
+| React Icons | Ícones | Navbar, dropdown, chat, perfil e controles |
+| OpenAI Chat Completions API | IA de texto e visão | Assistente contextual e identificação de produto por foto |
 
-  | Tecnologia | Uso no projeto | Por que foi escolhida |
-  | --- | --- | --- |
-  | React 19 | Renderização da interface | Mantém a UI declarativa e simples de manter |
-  | TypeScript 5 | Tipagem do app | Reduz erros em formulários, rotas e estado de autenticação |
-  | React Router DOM 7 | Rotas e navegação | Organiza home, login, cadastro, produto e carrinho sem recarregar a página |
-  | Firebase 12 | Auth, Firestore, Storage e Realtime Database | Resolve autenticação e persistência sem criar um backend próprio agora |
-  | Tailwind CSS 4 | Estilo utilitário | Permite reproduzir o layout pixel-preciso com rapidez e consistência |
-  | Vite 6 | Build e ambiente local | Entrega start rápido, build enxuto e boa DX |
-  | SVG inline | Ícones e microícones | Evita dependências extras e dá mais controle visual |
+## Estrutura do Projeto
 
-  ### Observações sobre o setup visual
+```text
+api/
+  assistant.js
+  assistant-core.cjs
+  product-identify.js
+  product-identify-core.cjs
 
-  - O projeto usa `Montserrat` como tipografia principal.
-  - `tailwind.config.js` está com `preflight: false`, então o reset base é controlado manualmente.
-  - Existem breakpoints personalizados (`mq1050` e `lg`) para preservar o desenho desktop do layout.
-  - O estilo atual é mais próximo de um marketplace desktop-first do que de um app mobile-first.
+public/
+  ArchiveSlide(1).png ... ArchiveSlide(5).png
+  ArchiveSlideMobile(1).png ... ArchiveSlideMobile(5).png
+  image-132@2x.png
+  image-132@2xMobile.png
+  ...
 
-  ## Estrutura do projeto
-
-  ```text
-  src/
-    App.tsx
-    index.tsx
-    global.css
-    context/
-      AuthContext.tsx
-    components/
-      AppHeader.tsx
-      AuthLayout.tsx
+src/
+  App.tsx
+  index.tsx
+  global.css
+  context/
+    AuthContext.tsx
+    CartContext.tsx
+  data/
+    products.ts
+  hooks/
+    useProducts.ts
+  components/
+    AppHeader.tsx
+    AssistantWidget.tsx
+    AuthLayout.tsx
+    inicial/
+      HeroSection.tsx
+      OffersSection.tsx
+      ProductsSection.tsx
+      FooterSection.tsx
       ...
-    firebase/
-      firebase.ts
-      firestore.rules
-      storage.rules
-      database.rules
-    pages/
-      Inicial/
-        index.tsx
-      TelaLogin/
-        index.tsx
-      TelaCadastro/
-        index.tsx
-      TelaProduto/
-        index.tsx
-      TelaCarrinho/
-        index.tsx
-      TelaPerfil/
-        index.tsx
-  ```
+  firebase/
+    firebase.ts
+    firestore.rules
+    storage.rules
+    database.rules
+  pages/
+    Inicial/
+    TelaLogin/
+    TelaCadastro/
+    TelaProduto/
+    TelaCarrinho/
+    TelaCompra/
+    TelaBusca/
+    TelaPerfil/
+    TelaMensagens/
+    CadastrarProduto/
+    LojaVendedor/
+```
 
-  As telas foram movidas para pastas próprias com `index.tsx` para facilitar a organização por tela e evitar quebra de resolução ao trocar os arquivos de lugar. `src/App.tsx` agora aponta explicitamente para esses entrypoints.
-
-  ### Arquivos importantes
-
-  - `src/index.tsx` é o ponto de entrada ativo do Vite.
-  - `src/App.tsx` centraliza as rotas, o comportamento de scroll ao trocar de página e os imports explícitos das telas para manter a resolução estável.
-  - `src/context/AuthContext.tsx` observa a sessão e carrega o perfil do usuário.
-  - `src/firebase/firebase.ts` inicializa o Firebase e expõe `auth`, `firestore`, `database` e `storage`.
-  - `src/global.css` é a folha global ativa.
-  - `src/main.tsx` e `src/styles.css` ainda existem como legado de scaffold, mas não fazem parte do fluxo atual de boot.
-  - `src/components/inicial/SocialCommunityCard.tsx` é a nova seção de comunidade inserida na home.
+## Rotas
 
-  ## Arquitetura e fluxo de dados
-
-  ### Boot da aplicação
-
-  1. `index.html` aponta para `src/index.tsx`.
-  2. `index.tsx` monta o app dentro de `BrowserRouter`.
-  3. O app é envolvido por `AuthProvider`, que mantém o estado de autenticação disponível em qualquer tela.
-  4. `App.tsx` resolve as rotas declarativas.
+| Rota | Tela | Estado |
+| --- | --- | --- |
+| `/` | Home | Pública |
+| `/login` | Login | Pública |
+| `/cadastro` | Cadastro | Pública |
+| `/registro` | Alias de cadastro | Pública |
+| `/buscar` | Busca/catálogo | Pública |
+| `/produto` | Produto padrão/fallback | Pública |
+| `/produto/:productId` | Detalhe de produto real | Pública |
+| `/loja/:sellerId` | Loja do vendedor | Pública |
+| `/perfil` | Perfil do usuário | Requer login pela própria tela |
+| `/produtos/novo` | Criar produto | Protegida por `ProtectedRoute` |
+| `/carrinho` | Carrinho | Pública |
+| `/carrinho/endereco` | Etapa de endereço | Pública |
+| `/carrinho/entrega` | Etapa de entrega | Pública |
+| `/compra` | Pagamento/finalização | Pública, mas grava pedido completo quando há login |
+| `/mensagens` | Chat | Protegida por `ProtectedRoute` |
+| `/mensagens/:threadId` | Chat específico | Protegida por `ProtectedRoute` |
 
-  ### Estado global de autenticação
+## Fluxo de Dados
 
-  O provedor de autenticação faz três coisas:
+### Autenticação
 
-  - escuta `onAuthStateChanged` do Firebase;
-  - busca o documento do usuário em `users/{uid}` no Firestore;
-  - expõe `user`, `profile`, `displayName`, `firstName`, `loading` e `logout`.
+`AuthContext` observa `onAuthStateChanged`, carrega `users/{uid}` e expõe `user`, `profile`, `displayName`, `firstName`, `photoURL`, `loading` e `logout`.
 
-  Isso permite que o cabeçalho mostre o nome correto sem duplicar lógica em cada tela.
+O login usa e-mail e senha. O cadastro cria a conta no Firebase Auth, atualiza `displayName`, grava dados em `users/{uid}` e cria/atualiza `sellerProfiles/{uid}` para preparar a jornada de vendedor.
 
-  ### Fluxo de dados atual
+### Produtos
 
-  - Parte da interface usa dados estáticos em arrays dentro das próprias páginas.
-  - Login e cadastro usam Firebase Auth.
-  - O perfil do usuário é salvo no Firestore.
-  - O carrinho, produto e home ainda têm conteúdo estático de demonstração.
-  - Realtime Database e Storage estão preparados nas rules, mas ainda não são a fonte principal de dados da interface.
+`useProducts` lê a coleção `products` no Firestore. Se não houver dados válidos, a aplicação usa os produtos padrão em `src/data/products.ts`.
 
-  ## Rotas
+Produtos cadastrados salvam:
 
-  | Rota | Tela | Função |
-  | --- | --- | --- |
-  | `/` | Home | Entrada principal do marketplace |
-  | `/login` | Login | Entrar com e-mail e senha |
-  | `/cadastro` | Cadastro | Criar conta e perfil do usuário |
-  | `/registro` | Cadastro | Alias da rota de cadastro |
-  | `/produto` | Produto | Detalhe do produto selecionado |
-  | `/perfil` | Perfil | Editar dados pessoais, foto e preferências |
-  | `/carrinho` | Carrinho | Resumo do pedido |
-  | `/carrinho/endereco` | Carrinho | Etapa de endereço |
-  | `/carrinho/entrega` | Carrinho | Etapa de entrega |
+- dados básicos: nome, descrição, categoria, grupo, preço, estoque, condição;
+- busca: `searchTerm`, tags e atributos;
+- vendedor: `sellerId`, `sellerName`, `sellerPhotoURL`, cidade e estado;
+- imagens: primeira imagem e galeria;
+- metadados como SKU e código de catálogo.
 
-  ## Como cada tela funciona
+### Carrinho
 
-  ### Home (`src/pages/Inicial/index.tsx`)
+`CartContext` usa `localStorage` para visitantes e Firestore para usuários logados. O carrinho autenticado fica em `users/{uid}/private/cart`.
 
-  A página inicial é a vitrine do projeto.
+### Compra
 
-  Ela possui:
+A tela de compra grava pedidos em `users/{uid}/orders` e marca itens comprados em `productPurchases/{uid_productId}`. Essa marca é usada para permitir avaliações de produto apenas após compra.
 
-  - hero de apresentação com logo e mensagem de boas-vindas;
-  - quatro cards de atalho no topo;
-  - bloco de oferta do dia;
-  - grades de ofertas adicionais;
-  - bloco de cadastro com benefícios;
-  - card de comunidade social com ícones flutuantes;
-  - seção de categorias;
-  - rodapé de suporte, confiança e navegação.
+### Mensagens
 
-  #### Por que essa estrutura existe
+O chat usa `messageThreads/{threadId}` e subcoleção `messageThreads/{threadId}/messages`. As threads guardam participantes, produto relacionado, último remetente, último texto e dados de leitura.
 
-  - A primeira dobra precisa mostrar ações rápidas sem obrigar a rolagem longa.
-  - Os cards iniciais resumem caminhos mais comuns: produtos, meios de pagamento, categoria e login.
-  - O bloco de cadastro reforça confiança e valor antes de pedir registro.
-  - As categorias e o rodapé ajudam descoberta, mas não competem com as ações principais.
+O chat permite:
 
-  ### Login (`src/pages/TelaLogin/index.tsx`)
+- texto;
+- imagem da galeria;
+- câmera;
+- anexar produto do vendedor;
+- anexar pedido;
+- comprar agora pelo chat;
+- avaliar atendimento do vendedor.
 
-  O login usa Firebase Auth com e-mail e senha.
+### Loja do Vendedor
 
-  Fluxo atual:
+Os dados da loja ficam em `sellerProfiles/{sellerId}`. A loja pode guardar capa, título, descrição, categorias e ordem dos produtos. Seguidores ficam em `sellerProfiles/{sellerId}/followers`.
 
-  1. O usuário entra na tela de login.
-  2. Digita e-mail e senha.
-  3. Clica em `Entrar`.
-  4. Se a autenticação funcionar, volta para a home.
-  5. Se já houver sessão ativa, a tela redireciona automaticamente para `/`.
+A opção de loja aparece no menu do perfil quando o usuário já possui pelo menos um produto cadastrado.
 
-  Os botões de iCloud e Google ainda são visuais e não estão conectados a provedores federados.
+## Como Cada Tela Funciona
 
-  ### Cadastro (`src/pages/TelaCadastro/index.tsx`)
+### Home
 
-  O cadastro também usa Firebase Auth.
+A home é a vitrine principal. Ela possui hero em carrossel, cards de atalho, oferta do dia, seções de produtos, bloco promocional, categorias, comunidade social e footer.
 
-  Fluxo atual:
+O hero usa imagens separadas para desktop e mobile:
 
-  1. O usuário entra na tela de cadastro.
-  2. Preenche nome, e-mail e senha.
-  3. Escolhe tipo de deficiência e atividades preferidas.
-  4. Define se a conta é de empresa ou usuário.
-  5. Clica em `Cadastrar`.
-  6. A conta é criada no Firebase Auth.
-  7. O perfil complementar é salvo em `users/{uid}` no Firestore.
-  8. A tela volta para a home.
+- desktop: `image-132@2x.png` e `ArchiveSlide(1).png` a `ArchiveSlide(5).png`;
+- mobile: `image-132@2xMobile.png` e `ArchiveSlideMobile(1).png` a `ArchiveSlideMobile(5).png`.
 
-  ### Produto (`src/pages/TelaProduto/index.tsx`)
+No desktop, o hero tem altura maior para não ficar escondido pelo navbar fixo. No mobile, a faixa de anúncios foi mantida compacta abaixo da busca, evitando o retângulo preto entre navbar e slide.
 
-  A tela de produto é um detalhe de demonstração com:
+### Login e Cadastro
 
-  - imagem principal;
-  - miniaturas;
-  - preço;
-  - botões de quantidade;
-  - botão de adicionar ao carrinho;
-  - simulador de frete.
+As telas usam `AuthLayout`, que combina área de acessibilidade e formulário. No desktop, a área de acessibilidade fica à esquerda; no mobile, ela aparece como card compacto acima do formulário.
 
-  Parte dos controles ainda é visual, mas a tela já serve para mostrar a lógica do funil de compra.
+Funcionalidades atuais:
 
-  ### Carrinho (`src/pages/TelaCarrinho/index.tsx`)
+- login por e-mail/senha;
+- cadastro por e-mail/senha;
+- recuperação de senha por Firebase;
+- seleção de tipo de conta: empresa ou usuário;
+- switches visuais e funcionais;
+- controle de fonte;
+- modo claro parcial.
 
-  O carrinho funciona como um fluxo em etapas:
+Os botões de Google e iCloud ainda são visuais. Eles não acionam provedores federados.
 
-  - resumo do pedido;
-  - cadastro de endereço;
-  - seleção de entrega.
+### Perfil
 
-  Isso foi feito no mesmo componente com variação por rota para preservar contexto durante o checkout.
+A tela de perfil foi reorganizada para ficar mais próxima de um painel de conta. Ela exibe dados do usuário, atalhos de compras/vendas/configurações, pedidos, dados pessoais, cartões conceituais e área de loja.
 
-  ### Perfil (`src/pages/TelaPerfil/index.tsx`)
+Quando uma funcionalidade ainda não existe de verdade, a tela direciona para um estado WIP animado, em vez de parecer quebrada.
 
-  A tela de perfil permite atualizar os dados do usuário autenticado.
+### Produto
 
-  Fluxo atual:
+A tela de produto mostra galeria, preço, quantidade, tags, dados do vendedor, botões de compra/carrinho, comentários, avaliações e similares.
 
-  1. O usuário abre `/perfil` autenticado.
-  2. Ajusta nome, telefone, cidade, estado e descrição.
-  3. Seleciona uma foto de perfil.
-  4. Recorta a imagem localmente antes de salvar.
-  5. Clica em `Salvar alterações`.
-  6. A foto é enviada para Storage e o restante do perfil é salvo no Firestore.
-  7. O cabeçalho e o contexto de autenticação passam a refletir os dados novos.
+O usuário logado pode:
 
-  Se não houver sessão ativa, a tela redireciona para `/login`.
+- comentar;
+- apagar o próprio comentário;
+- avaliar produto comprado;
+- seguir vendedor;
+- iniciar conversa;
+- acessar a loja do vendedor pelo perfil exibido no produto.
 
-  ## Jornada do usuário e clique budget
+### Criar Produto
 
-  Regra prática usada no projeto: tarefas principais devem ficar em **1 a 2 cliques**. Mais do que isso começa a pesar na descoberta; menos do que isso só faz sentido quando a informação já está visível na tela.
+A tela `/produtos/novo` exige login. O vendedor pode iniciar por palavras-chave ou por foto.
 
-  > Observação: a contagem abaixo considera cliques. Digitação e rolagem não entram na conta.
+No fluxo por foto, a imagem é enviada para `/api/product-identify`, que usa OpenAI Vision para sugerir os campos do formulário. O vendedor revisa tudo antes de publicar.
 
-  | Tarefa | Caminho atual | Cliques | Por que esse valor faz sentido |
-  | --- | --- | --- | --- |
-  | Abrir um produto em destaque | Home -> clicar em um card de produto | 1 | O produto já está visível; o clique só confirma a intenção |
-  | Explorar ofertas e abrir um item | Home -> `mostrar todas as ofertas` -> card do produto | 2 | O primeiro clique posiciona o usuário na seção certa, o segundo abre o item |
-  | Entrar na conta | Home -> `Entrar` no header -> enviar formulário | 2 | Um clique escolhe a rota e outro confirma a autenticação |
-  | Criar conta | Home -> CTA de cadastro -> enviar formulário | 2 | Mantém a intenção clara e evita excesso de etapas |
-  | Ir do produto ao carrinho | Produto -> `ADICIONAR AO CARRINHO` | 1 | O carrinho precisa ser rápido depois da decisão de compra |
-  | Sair do carrinho para endereço/entrega | Carrinho -> `Finalizar compra` -> `Cadastrar` | 2 | São etapas de confirmação, então 2 ações são aceitáveis |
+### Mensagens
 
-  ### O que não existe ainda nesse clique budget
+A tela `/mensagens` exige login. Ela organiza conversas por vendedor/produto e mantém leitura, anexos e compra contextual.
 
-  - A busca ainda não filtra produtos.
-  - As categorias não são filtros clicáveis.
-  - O fluxo de login social ainda não existe.
+O botão `+` no campo de mensagem abre opções:
 
-  Esses pontos precisam de implementação antes de entrarem como métricas de jornada real.
+- galeria;
+- câmera;
+- produtos;
+- pedidos;
+- comprar agora.
 
-  ## Design system e estilo
+Comprar pelo botão do chat envia contexto na conversa. Comprar direto pelo carrinho não envia mensagem automática ao vendedor.
 
-  ### Paleta atual
+### Loja do Vendedor
 
-  - Verde principal: `#167307`, `#1b7d0c`, `#257a0d`.
-  - Verde de apoio/superfície: `#ecf8e8`, `#edfdec`, `#f6f8f5`.
-  - Neutros de fundo: `#f3f3f3`, `#f5f5f5`, `#e8e8e8`.
-  - Fundo escuro de confiança: `#0f1e18` e `#0b1712`.
-  - CTA de alta prioridade: `#ee3544`.
+A loja mostra capa, perfil, seguidores, categorias, produtos e área "sobre". O próprio vendedor pode editar capa, título, categorias, ordem dos produtos e descrição.
 
-  ### Por que essas cores
+Visitantes podem seguir e compartilhar a loja.
 
-  - O verde comunica marca, ação e continuidade.
-  - O neutro segura o olhar e evita poluição visual.
-  - O fundo escuro do footer cria uma zona de encerramento e confiança.
-  - O vermelho é usado só no ponto que precisa de atenção imediata: criar conta.
+## Design System e Responsividade
 
-  ### Tipografia e ritmo
+### Paleta
 
-  - A tipografia principal é `Montserrat`.
-  - Os pesos estão concentrados em 600 para dar um ar mais sólido e consistente.
-  - Inputs e botões usam alturas próximas de 42px a 53px para manter conforto de toque.
+- Verde principal: `#167307`, `#1b7d0c`, `#257a0d`.
+- Superfícies verdes: `#ecf8e8`, `#edfdec`, `#f5fbf3`.
+- Neutros: `#f3f3f3`, `#f5f5f5`, `#e8e8e8`.
+- Texto principal: `#071735`, `#111`, `#333`.
+- Alertas: `#b42318`, `#ffb020`.
 
-  ### Estrutura visual da home
+### Decisões Recentes de UI
 
-  - Os quatro cards do topo ficam em linha horizontal no desktop porque esse é o formato mais rápido para descoberta.
-  - A largura máxima dos cards foi ajustada para manter o texto legível sem quebrar a CTA.
-  - O bloco de cadastro usa quatro benefícios alinhados de forma compacta e mantém o botão abaixo, para não competir com os argumentos de valor.
-  - O footer foi reduzido para texto leve, sem blocos visuais pesados, porque a parte de baixo da página deve apoiar e não disputar atenção com a vitrine.
+- O navbar mobile ficou mais simples, com menu, busca e carrinho sempre visíveis.
+- O carrossel de anúncios voltou no mobile, mas em versão compacta para não ocupar a primeira dobra.
+- O hero mobile usa imagens próprias e `object-cover` para preencher melhor o espaço.
+- O hero desktop ganhou altura maior para o navbar fixo não esconder a imagem principal.
+- O footer foi aproximado do verde do navbar/searchbar.
+- Cards não ficam aninhados em outros cards nas novas telas principais.
+- Botões importantes têm altura confortável para toque.
 
-  ### Por que alguns tamanhos não devem cair nem subir demais
+## Acessibilidade
 
-  - **Cards iniciais:** se ficarem menores, o texto bate no botão; se ficarem maiores, quebram a linha de quatro colunas e empurram conteúdo para baixo.
-  - **Inputs do auth:** se ficarem menores, o toque fica ruim; se ficarem maiores, o card perde densidade e parece pesado demais.
-  - **CTA principal:** 53px dá presença e toque confortável; menor que isso começa a ficar frágil, maior que isso começa a dominar demais o bloco.
-  - **Busca do header:** a altura atual equilibra legibilidade, logo e ícone sem ocupar a barra inteira.
+Decisões já presentes:
 
-  ## Acessibilidade
+- uso de `header`, `nav`, `main`, `section`, `article`, `aside` e `footer`;
+- labels visíveis ou `sr-only`;
+- botões com `type` explícito;
+- `aria-label` em botões de ícone;
+- `aria-pressed` nos switches de acessibilidade;
+- `alt` em imagens informativas;
+- `focus-visible` no CSS global;
+- contraste alto em CTAs e áreas críticas;
+- telas protegidas redirecionam para login sem deixar ações quebradas.
 
-  O projeto foi pensado para acessibilidade desde a estrutura.
+Limitações atuais:
 
-  ### Decisões já presentes no código
+- Libras, leitor de tela e tradução automática ainda são estados visuais, não integrações reais.
+- Google/iCloud ainda não fazem autenticação real.
+- Algumas funções de conta ainda estão em WIP.
+- Ainda não há testes automatizados de acessibilidade.
 
-  - Uso de elementos semânticos: `header`, `nav`, `main`, `section`, `article`, `aside`, `footer`.
-  - Labels visíveis ou `sr-only` em campos importantes.
-  - Botões com `type` explícito para não disparar submissões acidentais.
-  - `aria-label` em botões só com ícone.
-  - `alt` nos elementos com informação útil e `alt=""` nos decorativos.
-  - `:focus-visible` no CSS global para navegação por teclado.
-  - Campos e CTAs com altura suficiente para toque confortável.
-  - Contraste alto entre texto e fundo nas áreas críticas.
+## Firebase e Segurança
 
-  ### Por que isso é importante
+### Coleções principais
 
-  - Um layout acessível reduz esforço cognitivo.
-  - Ícones sem rótulo são ruins para leitor de tela; por isso os rótulos existem.
-  - Alvos menores que o necessário aumentam erro de toque.
-  - Muitos cliques prejudicam quem navega por teclado, leitor de tela ou mouse com precisão reduzida.
+- `users/{uid}`: perfil do usuário.
+- `users/{uid}/private/cart`: carrinho do usuário.
+- `users/{uid}/orders`: pedidos.
+- `products/{productId}`: anúncios.
+- `products/{productId}/comments`: comentários.
+- `products/{productId}/reviews`: avaliações de produto.
+- `productPurchases/{uid_productId}`: marca de compra para liberar avaliação.
+- `sellerProfiles/{sellerId}`: loja/vendedor.
+- `sellerProfiles/{sellerId}/followers`: seguidores.
+- `sellerProfiles/{sellerId}/serviceReviews`: avaliações de atendimento.
+- `messageThreads/{threadId}`: conversas.
+- `messageThreads/{threadId}/messages`: mensagens.
 
-  ### Limitações de acessibilidade ainda existentes
+### Storage
 
-  - O painel de acessibilidade do auth ainda é visual.
-  - Busca, categorias e alguns botões não executam ações reais.
-  - O projeto ainda não tem navegação por atalhos ou filtros semânticos de catálogo.
+Regras preparadas para:
 
-  ## Firebase e segurança
+- fotos de perfil;
+- fotos de produto;
+- capas de loja;
+- imagens de avaliação;
+- imagens de mensagem.
 
-  ### Configuração atual
+### Regras
 
-  O Firebase está inicializado em `src/firebase/firebase.ts` com:
+As regras ficam versionadas em:
 
-  - Authentication;
-  - Firestore;
-  - Realtime Database;
-  - Storage.
+- `src/firebase/firestore.rules`;
+- `src/firebase/storage.rules`;
+- `src/firebase/database.rules`.
 
-  ### Modelo de dados atual
+Elas precisam ser publicadas no Firebase para valerem em produção.
 
-  #### Authentication
+## Integrações de IA
 
-  - login e cadastro por e-mail e senha;
-  - `displayName` atualizado no cadastro;
-  - redirecionamento automático quando o usuário já está autenticado.
+O projeto usa a API direta da OpenAI por rotas serverless em `api/`. Não há LangChain, Anthropic, modelos locais ou agentes externos.
 
-  #### Firestore
+### Assistente de Site
 
-  - coleção `users/{uid}`;
-  - dados salvos no cadastro:
-    - `fullName`
-    - `email`
-    - `disabilityType`
-    - `preferredActivity`
-    - `accountType`
-    - `createdAt`
-    - `updatedAt`
+Arquivos:
 
-  #### Storage
+- `src/components/AssistantWidget.tsx`;
+- `api/assistant.js`;
+- `api/assistant-core.cjs`.
 
-  - regras já preparadas para `users/{uid}` e `public/`.
+Endpoint:
 
-  #### Realtime Database
+```text
+POST /api/assistant
+```
 
-  - regras já preparadas para `users/{uid}`.
-  - ainda não há escrita de dados de negócio nessa base.
+Modelo padrão:
 
-  ### Regras de segurança
+```text
+OPENAI_MODEL || gpt-5.4-mini
+```
 
-  As regras estão versionadas dentro do repositório, mas precisam ser publicadas no console do Firebase.
+O assistente recebe:
 
-  #### Firestore
+- mensagem atual;
+- histórico recente;
+- rota atual;
+- contexto dos produtos visíveis.
 
-  - o documento do usuário só pode ser lido/escrito pelo próprio usuário autenticado.
-  - qualquer outra coleção fica bloqueada por padrão.
+Antes de chamar a OpenAI, o backend faz triagem local por termos permitidos. Perguntas gerais ou fora do escopo recebem uma resposta fixa, sem gastar chamada de modelo.
 
-  #### Storage
+### Identificação de Produto por Foto
 
-  - cada usuário só acessa a sua própria pasta.
-  - `public/` pode ser lido publicamente e escrito apenas por usuário autenticado.
+Arquivos:
 
-  #### Realtime Database
+- `src/pages/CadastrarProduto/index.tsx`;
+- `api/product-identify.js`;
+- `api/product-identify-core.cjs`.
 
-  - nós em `users/{uid}` são privados ao próprio dono da conta.
+Endpoint:
 
-  ### Observação importante
+```text
+POST /api/product-identify
+```
 
-  Os botões de login social ainda não estão ligados aos provedores do Firebase Auth. Eles existem no layout, mas não fazem autenticação real ainda.
+Modelo padrão:
 
-  ## Como executar localmente
+```text
+OPENAI_VISION_MODEL || gpt-4.1-mini
+```
 
-  ### Pré-requisitos
+A rota recebe uma imagem em Data URL, palavras-chave extras e grupo de anúncio. A resposta usa `response_format: json_schema` para devolver dados estruturados como título, descrição, tags, atributos, preço estimado, estoque, SKU e confiança.
 
-  - Node.js 20 ou superior.
-  - npm instalado.
+### Variáveis de Ambiente
 
-  ### Comandos
+```bash
+OPENAI_API_KEY=...
+OPENAI_MODEL=gpt-5.4-mini
+OPENAI_VISION_MODEL=gpt-4.1-mini
+```
 
-  ```bash
-  npm install
-  npm run dev
-  ```
+Importante: a chave da OpenAI deve ficar somente no servidor. Ela não deve ser colocada no frontend, no README, em commits ou em arquivos públicos.
 
-  ### Outros comandos úteis
+## Engenharia de Prompt
 
-  ```bash
-  npm run build
-  npm run lint
-  ```
+### Prompts que ajudaram em erros difíceis
 
-  ## Observações importantes do repositório
+1. Prompt de diagnóstico de responsividade:
 
-  - O ponto de entrada real do app é `src/index.tsx`.
-  - `src/main.tsx` e `src/styles.css` estão no repositório como arquivos legados e podem ser ignorados na manutenção atual.
-  - O app foi desenhado com bastante valor de pixel fixo porque a base visual segue um mockup de marketplace já definido.
-  - O bundle do Firebase é maior do que o resto da aplicação; isso é esperado nesta fase.
+```text
+Analise a home como um usuário mobile e desktop. Compare o comportamento do header fixo, hero, cards de atalho e carrossel. Corrija apenas o que quebra a experiência mobile, preservando o desktop, e valide com screenshots em 390px e 1440px.
+```
 
-  ## O que ainda está pendente
+Classificação: prompt de auditoria visual e validação responsiva.  
+Uso: ajudou a isolar o problema do hero mobile, da faixa de anúncios e do navbar cobrindo o slide.
 
-  - Busca real de produtos.
-  - Catálogo alimentado por dados dinâmicos.
-  - Botões sociais de login funcional.
-  - Controles do painel de acessibilidade com efeito real.
-  - Filtros de categorias.
-  - Persistência real do carrinho e do checkout.
-  - Substituir os dados estáticos da home, produto e carrinho por dados reais.
+2. Prompt de triagem e escopo do assistente:
 
-  ## Guia rápido para apresentação na reunião
+```text
+Crie um assistente para responder somente dúvidas sobre Acesse+, produtos, compra, venda, entrega, carrinho, perfil e chat. Se o usuário fizer pergunta geral, responda com uma negativa curta e redirecione para ações do site. Use contexto dos produtos e nunca invente estoque, prazo, garantia ou política.
+```
 
-  Se a pergunta for “por que o site está assim?”, a resposta curta é:
+Classificação: prompt de sistema para assistente restrito por domínio.  
+Uso: ajudou a evitar que a IA respondesse perguntas gerais fora do site.
 
-  1. A navegação principal está curta para reduzir esforço.
-  2. O visual usa contraste, hierarquia clara e elementos semânticos para acessibilidade.
-  3. Firebase já cobre autenticação e perfil do usuário.
-  4. O que ainda falta é transformar o conteúdo estático em catálogo e fluxos realmente dinâmicos.
+### Prompts que não deram muito certo
 
-  Se a pergunta for “por que esses tamanhos e essa estrutura?”, a resposta curta é:
+1. Prompt genérico demais:
 
-  1. Porque o layout precisa caber, ser lido rápido e não quebrar os botões.
-  2. Porque a primeira dobra deve concentrar as ações mais importantes.
-  3. Porque um fluxo com 1 a 2 cliques é mais acessível do que um fluxo longo.
+```text
+Deixe o site responsivo em todas as telas sem alterar nada do desktop.
+```
 
-  ---
+Problema: amplo demais; não dizia quais telas validar, quais quebras priorizar nem o que significava "não alterar desktop".
 
-  Se quiser, o próximo passo natural é documentar também o plano de evolução do backend, incluindo catálogo, busca, carrinho persistente e fluxos reais de checkout.
-  
+2. Prompt amplo demais para IA:
+
+```text
+Faça a IA responder tudo que o usuário perguntar e preencher qualquer produto por foto.
+```
+
+Problema: abria escopo perigoso. A primeira parte deixava o assistente responder perguntas gerais; a segunda incentivava inventar dados de produto sem evidência visual.
+
+## Como Executar Localmente
+
+### Pré-requisitos
+
+- Node.js 20 ou superior.
+- npm instalado.
+- Projeto Firebase configurado.
+- Variáveis de ambiente da OpenAI no servidor quando usar IA.
+
+### Comandos
+
+```bash
+npm install
+npm run dev
+```
+
+### Validação
+
+```bash
+npm run lint
+npm run build
+```
+
+O build pode avisar que alguns chunks passam de 500 kB. Isso é esperado nesta fase por causa do Firebase e do tamanho atual da aplicação.
+
+## O Que Ainda Está Pendente
+
+- Login social real com Google e iCloud.
+- Integrações reais para Libras, leitor de tela e tradução automática.
+- Painel administrativo para moderação de produtos, usuários, mensagens e avaliações.
+- Pagamento real com Pix/cartão/gateway.
+- Cálculo real de frete.
+- Estoque transacional com baixa após compra.
+- Testes automatizados de unidade, integração, acessibilidade e E2E.
+- Observabilidade: logs estruturados, alertas e métricas.
+- SEO completo com títulos, descrições e páginas indexáveis.
+- Política de privacidade, termos de uso e revisão jurídica.
+- Moderação de imagens e textos enviados por usuários.
+- Deploy e variáveis de ambiente documentadas por ambiente.
+
+## Levantamento de Custo de Manutenção
+
+Esta é uma estimativa preliminar para manutenção de um marketplace React/Firebase com IA, chat, catálogo, seller store e fluxo de compra. Não é orçamento fechado.
+
+Referências de mercado consultadas em 20/05/2026:
+
+- GeraContratos: desenvolvedor frontend pleno entre R$ 80-150/h, backend pleno entre R$ 100-180/h e full stack pleno entre R$ 120-200/h.
+- Freelancer Online: desenvolvimento web/mobile pleno entre R$ 100-180/h e retainer mensal pleno entre R$ 4.000-8.000.
+- Sengi: alerta que retainers e manutenção sofrem com scope creep, especialmente em apps web, e recomenda controlar horas, revisões e escopo.
+
+### Cenários Mensais
+
+| Plano | Escopo | Horas/mês | Faixa estimada |
+| --- | --- | ---: | ---: |
+| Essencial | Bugs, pequenos ajustes visuais, Firebase rules, deploy e suporte leve | 20-30h | R$ 3.000-5.400 |
+| Recomendado | Essencial + melhorias contínuas, telas novas pequenas, revisão mobile, ajustes de IA e chat | 40-60h | R$ 6.000-10.800 |
+| Completo | Evolução ativa do marketplace, pagamentos, frete, moderação, testes, monitoramento e melhorias de IA | 80-120h | R$ 12.000-24.000 |
+
+### Custos Operacionais Separados
+
+- Firebase: pode começar baixo, mas cresce com Storage, Firestore reads/writes e tráfego.
+- OpenAI: variável por volume de chat, análise de imagens e modelo usado.
+- Domínio, hospedagem, e-mail transacional e monitoramento: estimar de R$ 100 a R$ 800/mês no início.
+- Suporte humano, atendimento ao cliente, jurídico, contabilidade, mídia paga e produção de conteúdo não estão incluídos.
+
+Para manter o site completo em ritmo saudável, o cenário recomendado é um retainer de R$ 6.000 a R$ 10.800/mês. Para transformar o Acesse+ em operação real de marketplace, com pagamento, frete, moderação e SLA, o cenário completo é mais realista.
+
+## 1.2 Documentação de Integrações de IA e Engenharia de Prompt
+
+### APIs Utilizadas
+
+- OpenAI Chat Completions API para assistente textual do site.
+- OpenAI Chat Completions API com entrada de imagem para identificação de produto por foto.
+- Nenhuma API da Anthropic foi utilizada.
+- Nenhum framework de orquestração como LangChain foi utilizado.
+- Nenhum modelo local foi utilizado.
+
+### Modelos
+
+- Assistente textual: `OPENAI_MODEL`, com fallback para `gpt-5.4-mini`.
+- Identificação por imagem: `OPENAI_VISION_MODEL`, com fallback para `gpt-4.1-mini`.
+
+### Tipos de Prompt
+
+- Prompt de sistema: define papel, tom, escopo permitido, bloqueios e limite de resposta do assistente.
+- Template de contexto: monta página atual, histórico recente, contexto do site e produtos antes de chamar o modelo.
+- Prompt de triagem: parte do fluxo local que decide se a pergunta é sobre o Acesse+ antes de chamar a API.
+- Template de geração estruturada: usado na identificação por foto para preencher um formulário de produto.
+- Schema de validação: `json_schema` força o retorno do modelo para campos previsíveis.
+
+### Regras de Segurança de Prompt
+
+- Não responder conhecimento geral fora do marketplace.
+- Não inventar preço, estoque, garantia, política, prazo ou dados clínicos.
+- Não pedir dados sensíveis.
+- Responder em português do Brasil.
+- Limitar respostas do assistente a frases curtas.
+- Usar variáveis de ambiente para chaves de API.
+- Validar imagem, tamanho e tipo antes de chamar a API de visão.
+
+## Guia Rápido Para Apresentação
+
+Se perguntarem "o que já funciona?", a resposta curta é:
+
+1. Autenticação, perfil, carrinho, busca, catálogo, produto, checkout, mensagens, loja do vendedor e criação de produto já possuem fluxo funcional.
+2. A IA já atua em dois pontos: assistente contextual e preenchimento de produto por foto.
+3. O Firebase já sustenta dados, storage e regras de segurança.
+4. A responsividade mobile foi revisada nas telas principais.
+
+Se perguntarem "o que falta para produção?", a resposta curta é:
+
+1. Pagamento real, frete real, moderação, testes, observabilidade, termos jurídicos e login social.
+2. Publicar e validar regras do Firebase em ambiente real.
+3. Definir orçamento mensal de manutenção e escopo de suporte.
