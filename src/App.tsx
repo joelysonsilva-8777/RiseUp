@@ -1,5 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, type ReactNode } from "react";
 import {
+  Navigate,
   Routes,
   Route,
   useNavigationType,
@@ -15,6 +16,24 @@ import TelaBusca from "./pages/TelaBusca/index";
 import CadastrarProduto from "./pages/CadastrarProduto/index";
 import TelaCompra from "./pages/TelaCompra/index";
 import TelaMensagens from "./pages/TelaMensagens/index";
+import LojaVendedor from "./pages/LojaVendedor/index";
+import AssistantWidget from "./components/AssistantWidget";
+import { useAuth } from "./context/AuthContext";
+
+const ProtectedRoute = ({ children }: { children: ReactNode }) => {
+  const { loading, user } = useAuth();
+  const location = useLocation();
+
+  if (loading) {
+    return null;
+  }
+
+  if (!user) {
+    return <Navigate replace state={{ from: location }} to="/login" />;
+  }
+
+  return children;
+};
 
 function App() {
   const action = useNavigationType();
@@ -85,23 +104,48 @@ function App() {
   }, [pathname]);
 
   return (
-    <Routes>
-      <Route path="/" element={<Inicial />} />
-      <Route path="/login" element={<TelaLogin />} />
-      <Route path="/cadastro" element={<TelaCadastro />} />
-      <Route path="/registro" element={<TelaCadastro />} />
-      <Route path="/produto" element={<TelaProduto />} />
-      <Route path="/produto/:productId" element={<TelaProduto />} />
-      <Route path="/perfil" element={<TelaPerfil />} />
-      <Route path="/buscar" element={<TelaBusca />} />
-      <Route path="/produtos/novo" element={<CadastrarProduto />} />
-      <Route path="/carrinho" element={<TelaCarrinho />} />
-      <Route path="/carrinho/endereco" element={<TelaCarrinho step="address" />} />
-      <Route path="/carrinho/entrega" element={<TelaCarrinho step="delivery" />} />
-      <Route path="/compra" element={<TelaCompra />} />
-      <Route path="/mensagens" element={<TelaMensagens />} />
-      <Route path="/mensagens/:threadId" element={<TelaMensagens />} />
-    </Routes>
+    <>
+      <Routes>
+        <Route path="/" element={<Inicial />} />
+        <Route path="/login" element={<TelaLogin />} />
+        <Route path="/cadastro" element={<TelaCadastro />} />
+        <Route path="/registro" element={<TelaCadastro />} />
+        <Route path="/produto" element={<TelaProduto />} />
+        <Route path="/produto/:productId" element={<TelaProduto />} />
+        <Route path="/loja/:sellerId" element={<LojaVendedor />} />
+        <Route path="/perfil" element={<TelaPerfil />} />
+        <Route path="/buscar" element={<TelaBusca />} />
+        <Route
+          path="/produtos/novo"
+          element={
+            <ProtectedRoute>
+              <CadastrarProduto />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/carrinho" element={<TelaCarrinho />} />
+        <Route path="/carrinho/endereco" element={<TelaCarrinho step="address" />} />
+        <Route path="/carrinho/entrega" element={<TelaCarrinho step="delivery" />} />
+        <Route path="/compra" element={<TelaCompra />} />
+        <Route
+          path="/mensagens"
+          element={
+            <ProtectedRoute>
+              <TelaMensagens />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/mensagens/:threadId"
+          element={
+            <ProtectedRoute>
+              <TelaMensagens />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+      <AssistantWidget />
+    </>
   );
 }
 export default App;

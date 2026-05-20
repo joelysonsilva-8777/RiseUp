@@ -42,6 +42,31 @@ type PhotoPreview = {
   url: string;
 };
 
+type ProductAnalysisAttribute = {
+  name: string;
+  value: string;
+};
+
+type ProductPhotoSuggestion = {
+  attributes: ProductAnalysisAttribute[];
+  confidence: number;
+  condition: ListingCondition;
+  description: string;
+  estimatedPrice: number;
+  listingGroup: ListingGroup;
+  searchTerm: string;
+  sku: string;
+  stock: number;
+  summary: string;
+  tags: string[];
+  title: string;
+};
+
+type ProductIdentifyResponse = {
+  error?: string;
+  suggestion?: ProductPhotoSuggestion;
+};
+
 const listingGroups: ListingGroupOption[] = [
   {
     description: "Itens fisicos, pecas, acessorios e materiais de apoio.",
@@ -106,6 +131,50 @@ const inputClassName =
 const labelClassName = "mb-2 block text-[13px] leading-[16px] text-[#333]";
 
 const createLocalId = () => window.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
+
+const fileToDataUrl = (file: File) =>
+  new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => resolve(String(reader.result ?? ""));
+    reader.onerror = () => reject(new Error("Nao foi possivel ler a imagem."));
+    reader.readAsDataURL(file);
+  });
+
+const loadImage = (dataUrl: string) =>
+  new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = new Image();
+
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error("Nao foi possivel carregar a imagem."));
+    image.src = dataUrl;
+  });
+
+const imageFileToAnalysisDataUrl = async (file: File) => {
+  const sourceDataUrl = await fileToDataUrl(file);
+  const image = await loadImage(sourceDataUrl);
+  const maxSide = 1280;
+  const scale = Math.min(1, maxSide / Math.max(image.width, image.height));
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+
+  canvas.width = Math.max(1, Math.round(image.width * scale));
+  canvas.height = Math.max(1, Math.round(image.height * scale));
+
+  if (!context) {
+    return sourceDataUrl;
+  }
+
+  context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+  return canvas.toDataURL("image/jpeg", 0.82);
+};
+
+const getSafeListingGroup = (value: string | undefined, fallback: ListingGroup | null): ListingGroup =>
+  listingGroups.some((group) => group.value === value) ? (value as ListingGroup) : fallback ?? "produtos";
+
+const getSafeCondition = (value: string | undefined, fallback: ListingCondition): ListingCondition =>
+  conditionOptions.some((option) => option.value === value) ? (value as ListingCondition) : fallback;
 
 const normalizeTag = (value: string) =>
   value
@@ -175,6 +244,24 @@ const buildSuggestedTags = (group: ListingGroup, keyword: string) => {
     .filter((tag) => tag.length > 2);
 
   return Array.from(new Set([...keywordTags, ...tagSuggestionsByGroup[group]])).slice(0, 8);
+};
+
+const buildAttributesFromPhotoSuggestion = (
+  group: ListingGroup,
+  suggestionAttributes: ProductAnalysisAttribute[],
+  keyword: string
+) => {
+  const suggestedByName = new Map(
+    suggestionAttributes
+      .map((attribute) => [attribute.name, attribute.value.trim()] as const)
+      .filter(([, value]) => value.length > 0)
+  );
+  const fallbackAttributes = buildSuggestedAttributes(group, keyword || getSelectedGroup(group).label);
+
+  return attributesByGroup[group].reduce<Record<string, string>>((result, attributeName) => {
+    result[attributeName] = suggestedByName.get(attributeName) || fallbackAttributes[attributeName] || "A confirmar";
+    return result;
+  }, {});
 };
 
 const buildSuggestedTitle = (group: ListingGroup, keyword: string) => {
@@ -278,6 +365,10 @@ const CadastrarProduto = () => {
   const [title, setTitle] = useState("");
   const [photos, setPhotos] = useState<PhotoPreview[]>([]);
   const [photoError, setPhotoError] = useState("");
+  const [photoSearchPreview, setPhotoSearchPreview] = useState<PhotoPreview | null>(null);
+  const [photoAnalysisMessage, setPhotoAnalysisMessage] = useState("");
+  const [photoAnalysisError, setPhotoAnalysisError] = useState("");
+  const [identifyingPhoto, setIdentifyingPhoto] = useState(false);
   const [stock, setStock] = useState("1");
   const [sku, setSku] = useState("");
   const [city, setCity] = useState("");
@@ -343,6 +434,8 @@ const CadastrarProduto = () => {
     setSearchTerm("");
     setSearchError("");
     setWipMessage("");
+    setPhotoAnalysisMessage("");
+    setPhotoAnalysisError("");
     goToStep("search");
   };
 
@@ -367,6 +460,109 @@ const CadastrarProduto = () => {
     setDescription(buildSuggestedDescription(listingGroup, normalizedTerm, nextAttributes, condition));
     setSearchError("");
     goToStep("details");
+  };
+
+  const applyPhotoSuggestion = (suggestion: ProductPhotoSuggestion, photoPreview: PhotoPreview) => {
+    const nextGroup = getSafeListingGroup(suggestion.listingGroup, listingGroup);
+    const nextCondition = getSafeCondition(suggestion.condition, condition);
+    const nextSearchTerm = suggestion.searchTerm || suggestion.title || selectedGroup.label;
+    const nextAttributes = buildAttributesFromPhotoSuggestion(nextGroup, suggestion.attributes, nextSearchTerm);
+    const nextTags = Array.from(
+      new Set([
+        ...suggestion.tags.map(normalizeTag).filter((tag) => tag.length > 2),
+        ...buildSuggestedTags(nextGroup, nextSearchTerm),
+      ])
+    ).slice(0, 12);
+
+    setListingGroup(nextGroup);
+    setSearchTerm(nextSearchTerm);
+    setAttributes(nextAttributes);
+    setTags(nextTags);
+    setCondition(nextCondition);
+    setTitle(suggestion.title || buildSuggestedTitle(nextGroup, nextSearchTerm));
+    setDescription(
+      suggestion.description ||
+        buildSuggestedDescription(nextGroup, nextSearchTerm, nextAttributes, nextCondition)
+    );
+    setStock(String(Math.max(1, Math.min(99, Number(suggestion.stock || 1)))));
+    setSku(suggestion.sku);
+
+    if (suggestion.estimatedPrice > 0 && !price) {
+      setPrice(String(Number(suggestion.estimatedPrice.toFixed(2))));
+    }
+
+    setPhotos((current) => {
+      const remainingPhotos = current.filter((photo) => photo.id !== photoPreview.id);
+      return [photoPreview, ...remainingPhotos].slice(0, 5);
+    });
+    setPhotoError("");
+    setErrorMessage("");
+    setMessage(suggestion.summary ? `Identificado pela foto: ${suggestion.summary}` : "Produto identificado pela foto.");
+    goToStep("details");
+  };
+
+  const handleCatalogPhotoChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0] ?? null;
+    event.target.value = "";
+
+    if (!file || !listingGroup) {
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      setPhotoAnalysisError("Envie uma imagem JPG, PNG ou WEBP.");
+      return;
+    }
+
+    if (file.size > 12 * 1024 * 1024) {
+      setPhotoAnalysisError("A foto precisa ter ate 12 MB.");
+      return;
+    }
+
+    const photoPreview = {
+      file,
+      id: createLocalId(),
+      url: URL.createObjectURL(file),
+    };
+
+    setPhotoSearchPreview(photoPreview);
+    setIdentifyingPhoto(true);
+    setSearchError("");
+    setWipMessage("");
+    setPhotoAnalysisError("");
+    setPhotoAnalysisMessage("Analisando a foto e preenchendo o formulario...");
+
+    try {
+      const imageDataUrl = await imageFileToAnalysisDataUrl(file);
+      const response = await fetch("/api/product-identify", {
+        body: JSON.stringify({
+          extraKeywords: searchTerm,
+          imageDataUrl,
+          listingGroup,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+      });
+      const payload = (await response.json()) as ProductIdentifyResponse;
+
+      if (!response.ok || !payload.suggestion) {
+        throw new Error(payload.error || "Nao foi possivel identificar o produto pela foto.");
+      }
+
+      setPhotoAnalysisMessage("Foto analisada. Revise os dados antes de publicar.");
+      applyPhotoSuggestion(payload.suggestion, photoPreview);
+    } catch (error) {
+      setPhotoAnalysisMessage("");
+      setPhotoAnalysisError(
+        error instanceof Error
+          ? error.message
+          : "Nao foi possivel identificar o produto pela foto agora."
+      );
+    } finally {
+      setIdentifyingPhoto(false);
+    }
   };
 
   const updateAttribute = (attributeName: string, value: string) => {
@@ -624,17 +820,24 @@ const CadastrarProduto = () => {
                   <FiSearch size={25} />
                   Por palavras-chave
                 </button>
-                <button
-                  className="relative flex h-[91px] flex-col items-center justify-center gap-3 rounded-[6px] border border-[#bfc4cc] bg-white text-[14px] leading-[18px] text-[#222]"
-                  onClick={() => setWipMessage("Busca por foto esta em W.I.P. Use palavras-chave por enquanto.")}
-                  type="button"
+                <label
+                  className={`relative flex h-[91px] cursor-pointer flex-col items-center justify-center gap-3 rounded-[6px] border border-[#bfc4cc] bg-white text-[14px] leading-[18px] text-[#222] transition-colors hover:border-[#167307] hover:text-[#167307] ${
+                    identifyingPhoto ? "pointer-events-none opacity-70" : ""
+                  }`}
                 >
                   <span className="absolute right-0 top-0 rounded-bl-[6px] bg-[#167307] px-3 py-1 text-[11px] text-white">
-                    W.I.P
+                    IA
                   </span>
                   <FiCamera size={25} />
-                  Por foto
-                </button>
+                  {identifyingPhoto ? "Identificando..." : "Por foto"}
+                  <input
+                    className="hidden"
+                    accept="image/jpeg,image/png,image/webp"
+                    disabled={identifyingPhoto}
+                    onChange={handleCatalogPhotoChange}
+                    type="file"
+                  />
+                </label>
                 <button
                   className="relative flex h-[91px] flex-col items-center justify-center gap-3 rounded-[6px] border border-[#bfc4cc] bg-white text-[14px] leading-[18px] text-[#222]"
                   onClick={() => setWipMessage("Busca por codigo esta em W.I.P. Use palavras-chave por enquanto.")}
@@ -663,12 +866,52 @@ const CadastrarProduto = () => {
                 />
                 {searchError ? <p className="mt-3 text-[13px] text-[#b42318]">{searchError}</p> : null}
                 {wipMessage ? <p className="mt-3 text-[13px] text-[#167307]">{wipMessage}</p> : null}
+
+                <div className="mt-7 rounded-[6px] border border-[#dfe3e8] bg-[#f8fafc] p-4">
+                  <div className="grid gap-4 sm:grid-cols-[92px_1fr]">
+                    <div className="flex aspect-square items-center justify-center rounded-[6px] bg-white text-[#167307]">
+                      {photoSearchPreview ? (
+                        <img
+                          className="h-full w-full rounded-[6px] object-contain p-2"
+                          alt="Foto analisada"
+                          src={photoSearchPreview.url}
+                        />
+                      ) : (
+                        <FiCamera size={28} />
+                      )}
+                    </div>
+                    <div>
+                      <h3 className="text-[15px] leading-[20px] text-[#222]">Identificar por foto com IA</h3>
+                      <p className="mt-2 text-[13px] leading-[20px] text-[#555]">
+                        Envie uma foto nítida do produto. A IA tenta reconhecer o item e preencher titulo,
+                        caracteristicas, tags e descricao para voce revisar.
+                      </p>
+                      <label className="mt-4 inline-flex h-10 cursor-pointer items-center gap-2 rounded-[5px] bg-[#ecf8e8] px-4 text-[13px] text-[#167307]">
+                        <FiUploadCloud />
+                        {identifyingPhoto ? "Analisando..." : "Selecionar foto"}
+                        <input
+                          className="hidden"
+                          accept="image/jpeg,image/png,image/webp"
+                          disabled={identifyingPhoto}
+                          onChange={handleCatalogPhotoChange}
+                          type="file"
+                        />
+                      </label>
+                    </div>
+                  </div>
+                  {photoAnalysisMessage ? (
+                    <p className="mt-3 text-[13px] leading-[18px] text-[#167307]">{photoAnalysisMessage}</p>
+                  ) : null}
+                  {photoAnalysisError ? (
+                    <p className="mt-3 text-[13px] leading-[18px] text-[#b42318]">{photoAnalysisError}</p>
+                  ) : null}
+                </div>
               </div>
 
               <div className="flex justify-end border-t border-[#e6e8eb] px-8 py-8">
                 <button
                   className="h-[48px] rounded-[6px] bg-[#167307] px-8 text-[15px] leading-[20px] text-white disabled:cursor-not-allowed disabled:opacity-60"
-                  disabled={searchTerm.trim().length < 3}
+                  disabled={searchTerm.trim().length < 3 || identifyingPhoto}
                   type="submit"
                 >
                   Buscar

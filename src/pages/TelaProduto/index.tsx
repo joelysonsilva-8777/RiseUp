@@ -241,6 +241,14 @@ const TelaProduto: FunctionComponent = () => {
   }, [galleryImages, product.image]);
 
   useEffect(() => {
+    try {
+      window.sessionStorage.setItem("acesse-last-viewed-product-id", product.id);
+    } catch {
+      // Sessao indisponivel em alguns navegadores privados.
+    }
+  }, [product.id]);
+
+  useEffect(() => {
     if (!product.sellerId) {
       setSellerProfile(null);
       return;
@@ -662,24 +670,41 @@ const TelaProduto: FunctionComponent = () => {
           </section>
 
           <section className="mt-5 rounded-[8px] bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <div className="flex items-start gap-4">
-              <Avatar name={sellerName} photoURL={sellerPhotoURL} size="lg" />
-              <div className="min-w-0 flex-1">
-                <h2 className="text-[18px] leading-[23px] text-black">{sellerName}</h2>
-                <p className="mt-1 flex items-center gap-2 text-[13px] leading-[18px] text-[#52606d]">
-                  <FiMapPin className="shrink-0" />
-                  {sellerLocation}
-                </p>
-                <p className="mt-2 text-[13px] leading-[19px] text-[#52606d]">
-                  {sellerProfile?.bio ?? "Vendedor Acesse+ com anuncios focados em acessibilidade e autonomia."}
-                </p>
-                <p className="mt-3 flex flex-wrap gap-3 text-[12px] leading-[16px] text-[#167307]">
-                  <span>{followersCount} seguidor(es)</span>
-                  <span>{reviews.length} avaliacao(oes)</span>
-                  {averageRating > 0 ? <span>Nota media {averageRating.toFixed(1)}/5</span> : null}
-                </p>
+            {product.sellerId ? (
+              <Link className="flex items-start gap-4 text-black no-underline" to={`/loja/${product.sellerId}`}>
+                <Avatar name={sellerName} photoURL={sellerPhotoURL} size="lg" />
+                <div className="min-w-0 flex-1">
+                  <h2 className="text-[18px] leading-[23px] text-black">{sellerName}</h2>
+                  <p className="mt-1 flex items-center gap-2 text-[13px] leading-[18px] text-[#52606d]">
+                    <FiMapPin className="shrink-0" />
+                    {sellerLocation}
+                  </p>
+                  <p className="mt-2 text-[13px] leading-[19px] text-[#52606d]">
+                    {sellerProfile?.bio ?? "Vendedor Acesse+ com anuncios focados em acessibilidade e autonomia."}
+                  </p>
+                  <p className="mt-3 flex flex-wrap gap-3 text-[12px] leading-[16px] text-[#167307]">
+                    <span>{followersCount} seguidor(es)</span>
+                    <span>{reviews.length} avaliacao(oes)</span>
+                    {averageRating > 0 ? <span>Nota media {averageRating.toFixed(1)}/5</span> : null}
+                  </p>
+                  <span className="mt-2 block text-[12px] leading-[16px] text-[#167307]">Ver loja do vendedor</span>
+                </div>
+              </Link>
+            ) : (
+              <div className="flex items-start gap-4">
+                <Avatar name={sellerName} photoURL={sellerPhotoURL} size="lg" />
+                <div className="min-w-0 flex-1">
+                  <h2 className="text-[18px] leading-[23px] text-black">{sellerName}</h2>
+                  <p className="mt-1 flex items-center gap-2 text-[13px] leading-[18px] text-[#52606d]">
+                    <FiMapPin className="shrink-0" />
+                    {sellerLocation}
+                  </p>
+                  <p className="mt-2 text-[13px] leading-[19px] text-[#52606d]">
+                    {sellerProfile?.bio ?? "Vendedor Acesse+ com anuncios focados em acessibilidade e autonomia."}
+                  </p>
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
               <button
