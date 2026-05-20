@@ -8,7 +8,7 @@ Este README funciona como documento de reunião e referência técnica do estado
 
 O Acesse+ é uma aplicação de marketplace com foco em acessibilidade, autonomia e tecnologia assistiva. A experiência cobre descoberta de produtos, busca, cadastro, login, carrinho, checkout, perfil, criação de anúncios, conversa com vendedores, avaliações, loja do vendedor e assistente de IA contextual.
 
-A base visual segue uma identidade verde, clara e utilitária, com navegação curta e prioridade para ações de compra, venda e suporte. A aplicação já usa Firebase para autenticação, persistência, storage e regras de segurança, além de rotas serverless em `api/` para comunicação com modelos da OpenAI.
+A base visual segue uma identidade verde, clara e utilitária, com navegação curta e prioridade para ações de compra, venda e suporte. A aplicação já usa Firebase para realizar a autenticação, persistência, storage e regras de segurança, além de rotas serverless em `api/` para comunicação com modelos da OpenAI.
 
 ## Estado Atual do Projeto
 
