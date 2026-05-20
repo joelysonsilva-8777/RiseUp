@@ -133,6 +133,17 @@ const AnnouncementCard = ({ title, text }: AnnouncementItem) => (
   </article>
 );
 
+const MobileAnnouncementCard = ({ title, text }: AnnouncementItem) => (
+  <article className="flex min-w-[256px] items-center gap-2 px-3 py-2">
+    <span className="flex h-2 w-2 shrink-0 rounded-full bg-[#167307]" aria-hidden="true" />
+    <p className="min-w-0 truncate text-[12px] leading-[15px] text-[#355e3a]">
+      <span className="font-semibold uppercase tracking-[0.08em] text-[#167307]">{title}</span>
+      <span className="mx-1 text-[#7a987a]">-</span>
+      <span>{text}</span>
+    </p>
+  </article>
+);
+
 const CartBadge = ({ count }: { count: number }) =>
   count > 0 ? (
     <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center bg-white px-1 text-[11px] leading-none text-[#167307]">
@@ -225,7 +236,7 @@ export const AppHeader = ({ showNav = true }: AppHeaderProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isMobileViewport, setIsMobileViewport] = useState(false);
-  const headerSpacerHeight = showNav ? (isScrolled ? 78 : isMobileViewport ? 146 : 192) : 78;
+  const headerSpacerHeight = showNav ? (isScrolled ? 78 : isMobileViewport ? 118 : 192) : 78;
   const profileName = displayName || user?.email?.split("@")[0] || "Usuario Acesse+";
   const profileInitials = getInitials(profileName);
   const unreadThreads = useMemo(
@@ -347,7 +358,7 @@ export const AppHeader = ({ showNav = true }: AppHeaderProps) => {
       <header className="fixed left-0 right-0 top-0 z-50 w-full shrink-0 font-['Montserrat',sans-serif]">
         {showNav ? (
           <div
-            className={`overflow-hidden border-b border-[#d7e8d4] bg-[#f5fbf3] transition-all duration-300 ease-out ${
+            className={`hidden overflow-hidden border-b border-[#d7e8d4] bg-[#f5fbf3] transition-all duration-300 ease-out md:block ${
               isScrolled ? "max-h-0 opacity-0 -translate-y-2" : "max-h-[68px] opacity-100 translate-y-0"
             }`}
             onMouseEnter={() => setIsAnnouncementPaused(true)}
@@ -372,7 +383,7 @@ export const AppHeader = ({ showNav = true }: AppHeaderProps) => {
         <div className="flex h-[78px] w-full items-center bg-[#167307] px-[14px] text-white">
           <button
             aria-label={isMobileMenuOpen ? "Fechar menu" : "Abrir menu"}
-            className="mr-3 flex h-10 w-10 shrink-0 items-center justify-center border border-white/20 bg-white/10 p-0 text-white md:hidden"
+            className="mr-2 flex h-10 w-10 shrink-0 items-center justify-center rounded-[8px] border border-[#d7e8d4] bg-[#ecf8e8] p-0 text-[#167307] md:hidden"
             onClick={() => setIsMobileMenuOpen((current) => !current)}
             type="button"
           >
@@ -397,7 +408,7 @@ export const AppHeader = ({ showNav = true }: AppHeaderProps) => {
           </a>
 
           <form
-            className="ml-[6px] flex h-10 min-w-0 flex-1 items-center rounded-[10px] bg-[#ecf8e8] px-[14px] md:w-[clamp(360px,55vw,772px)] md:px-[22px]"
+            className="ml-1 flex h-10 min-w-0 flex-1 items-center rounded-[10px] bg-[#ecf8e8] px-3 md:ml-[6px] md:w-[clamp(360px,55vw,772px)] md:px-[22px]"
             onSubmit={(event) => {
               event.preventDefault();
               submitSearch();
@@ -429,6 +440,15 @@ export const AppHeader = ({ showNav = true }: AppHeaderProps) => {
               ) : null}
             </div>
           </form>
+
+          <Link
+            aria-label="Carrinho"
+            className="relative ml-2 flex h-10 w-10 shrink-0 items-center justify-center rounded-[8px] border border-white/20 bg-white/10 text-white no-underline md:hidden"
+            to="/carrinho"
+          >
+            <CartIcon />
+            <CartBadge count={itemCount} />
+          </Link>
 
           <div className="ml-auto hidden shrink-0 items-center gap-3 md:flex md:gap-[18px]">
             <div className="relative hidden md:block" ref={notificationsMenuRef}>
@@ -678,8 +698,28 @@ export const AppHeader = ({ showNav = true }: AppHeaderProps) => {
           </div>
         </div>
 
+        {showNav ? (
+          <div
+            className={`overflow-hidden border-b border-[#d7e8d4] bg-[#f5fbf3] transition-all duration-300 ease-out md:hidden ${
+              isScrolled ? "max-h-0 opacity-0 -translate-y-1" : "max-h-10 opacity-100 translate-y-0"
+            }`}
+            onMouseEnter={() => setIsAnnouncementPaused(true)}
+            onMouseLeave={() => setIsAnnouncementPaused(false)}
+          >
+            <div
+              className={`announcement-marquee flex h-10 w-max items-center gap-2 ${
+                isAnnouncementPaused ? "announcement-marquee-paused" : ""
+              }`}
+            >
+              {[...announcementItems, ...announcementItems].map((item, index) => (
+                <MobileAnnouncementCard key={`mobile-${item.title}-${index}`} {...item} />
+              ))}
+            </div>
+          </div>
+        ) : null}
+
         {isMobileMenuOpen ? (
-          <div className="border-b border-[#d7e8d4] bg-white px-4 py-4 text-[#071735] shadow-[0_12px_28px_rgba(0,0,0,0.14)] md:hidden">
+          <div className="border-b border-[#d7e8d4] bg-[#f5fbf3] px-4 py-4 text-[#071735] shadow-[0_12px_28px_rgba(0,0,0,0.14)] md:hidden">
             <div className="flex items-center justify-between border-b border-[#edf0f2] pb-3">
               <Link className="no-underline" onClick={() => setIsMobileMenuOpen(false)} to="/">
                 <img className="h-[32px] w-[118px] object-contain" alt="Acesse+" src="/Group-57.svg" />
@@ -700,7 +740,7 @@ export const AppHeader = ({ showNav = true }: AppHeaderProps) => {
               ) : user ? (
                 <>
                   <Link
-                    className="flex items-center gap-3 px-1 py-2 text-[#071735] no-underline"
+                    className="flex items-center gap-3 rounded-[8px] bg-white px-3 py-3 text-[#071735] no-underline"
                     onClick={() => setIsMobileMenuOpen(false)}
                     to="/perfil"
                   >
@@ -714,7 +754,7 @@ export const AppHeader = ({ showNav = true }: AppHeaderProps) => {
                     <span>Perfil de {firstName || "usuario"}</span>
                   </Link>
                   <Link
-                    className="px-1 py-2 text-[#071735] no-underline"
+                    className="rounded-[8px] bg-white px-3 py-3 text-[#071735] no-underline"
                     onClick={() => setIsMobileMenuOpen(false)}
                     to="/produtos/novo"
                   >
@@ -722,7 +762,7 @@ export const AppHeader = ({ showNav = true }: AppHeaderProps) => {
                   </Link>
                   {hasSellerStore ? (
                     <Link
-                      className="px-1 py-2 text-[#071735] no-underline"
+                      className="rounded-[8px] bg-white px-3 py-3 text-[#071735] no-underline"
                       onClick={() => setIsMobileMenuOpen(false)}
                       to={`/loja/${user.uid}`}
                     >
@@ -730,7 +770,7 @@ export const AppHeader = ({ showNav = true }: AppHeaderProps) => {
                     </Link>
                   ) : null}
                   <button
-                    className="px-1 py-2 text-left text-[#b42318]"
+                    className="rounded-[8px] bg-white px-3 py-3 text-left text-[#b42318]"
                     onClick={() => {
                       setIsMobileMenuOpen(false);
                       void logout();
@@ -742,22 +782,22 @@ export const AppHeader = ({ showNav = true }: AppHeaderProps) => {
                 </>
               ) : (
                 <>
-                  <Link className="px-1 py-2 text-[#071735] no-underline" onClick={() => setIsMobileMenuOpen(false)} to="/login">
+                  <Link className="rounded-[8px] bg-[#167307] px-3 py-3 text-center text-white no-underline" onClick={() => setIsMobileMenuOpen(false)} to="/login">
                     Entrar
                   </Link>
-                  <Link className="px-1 py-2 text-[#071735] no-underline" onClick={() => setIsMobileMenuOpen(false)} to="/cadastro">
+                  <Link className="rounded-[8px] border border-[#167307] bg-white px-3 py-3 text-center text-[#167307] no-underline" onClick={() => setIsMobileMenuOpen(false)} to="/cadastro">
                     Criar conta
                   </Link>
                 </>
               )}
 
-              <Link className="px-1 py-2 text-[#071735] no-underline" onClick={() => setIsMobileMenuOpen(false)} to="/#categorias">
+              <Link className="rounded-[8px] bg-white px-3 py-3 text-[#071735] no-underline" onClick={() => setIsMobileMenuOpen(false)} to="/#categorias">
                 Departamentos
               </Link>
-              <Link className="px-1 py-2 text-[#071735] no-underline" onClick={() => setIsMobileMenuOpen(false)} to="/#ofertas">
+              <Link className="rounded-[8px] bg-white px-3 py-3 text-[#071735] no-underline" onClick={() => setIsMobileMenuOpen(false)} to="/#ofertas">
                 Ofertas exclusivas
               </Link>
-              <Link className="px-1 py-2 text-[#071735] no-underline" onClick={() => setIsMobileMenuOpen(false)} to="/buscar">
+              <Link className="rounded-[8px] bg-white px-3 py-3 text-[#071735] no-underline" onClick={() => setIsMobileMenuOpen(false)} to="/buscar">
                 Todos os produtos
               </Link>
             </div>

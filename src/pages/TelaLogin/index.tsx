@@ -1,9 +1,12 @@
 import { type FunctionComponent, useEffect, useState } from "react";
+import { sendPasswordResetEmail, signInWithEmailAndPassword } from "firebase/auth";
 import { Link, useNavigate } from "react-router-dom";
-import { signInWithEmailAndPassword } from "firebase/auth";
 import { AppleMark, AuthLayout } from "../../components/AuthLayout";
 import { useAuth } from "../../context/AuthContext";
 import { auth } from "../../firebase/firebase";
+
+const inputClassName =
+  "h-[42px] w-full rounded-[9px] border-0 bg-white px-[13px] text-left text-[13px] leading-[16px] text-[#03557b] outline-none placeholder:text-[#03557b]";
 
 const TelaLogin: FunctionComponent = () => {
   const navigate = useNavigate();
@@ -35,19 +38,33 @@ const TelaLogin: FunctionComponent = () => {
     }
   };
 
+  const recoverPassword = async () => {
+    if (!email) {
+      setErrorMessage("Digite seu e-mail antes de recuperar a senha.");
+      return;
+    }
+
+    try {
+      await sendPasswordResetEmail(auth, email);
+      setErrorMessage("Enviamos um link de recuperação para o seu e-mail.");
+    } catch {
+      setErrorMessage("Não foi possível enviar o link agora.");
+    }
+  };
+
   return (
     <AuthLayout firstToggleActive>
       <div className="flex w-full max-w-[360px] flex-col items-center text-center">
-        <h1 className="mb-[24px] text-[36px] leading-[43px] text-white">Entrar</h1>
+        <h1 className="mb-[24px] text-[34px] leading-[40px] text-white sm:text-[36px] sm:leading-[43px]">Entrar</h1>
 
         <form
-          className="flex w-[320px] flex-col rounded-[9px] bg-[#1d7b0c] px-[16px] pb-[17px] pt-[20px]"
+          className="flex w-full max-w-[320px] flex-col rounded-[9px] bg-[#1d7b0c] px-[16px] pb-[17px] pt-[20px]"
           id="login-form"
           onSubmit={handleSubmit}
         >
-          <div className="flex flex-col gap-[13px] border-b border-white/80 pb-[17px] text-white">
+          <div className="flex flex-col gap-[10px] border-b border-white/80 pb-[17px] text-white">
             <button
-              className="flex h-[22px] w-full items-center justify-between border-0 bg-transparent p-0 text-left text-[16px] leading-[19px] text-white"
+              className="flex min-h-[34px] w-full items-center justify-between rounded-[7px] border border-white/25 bg-white/10 px-3 text-left text-[14px] leading-[18px] text-white transition-colors hover:bg-white/16"
               type="button"
             >
               <span>Fazer login com o iCloud</span>
@@ -56,17 +73,17 @@ const TelaLogin: FunctionComponent = () => {
               </span>
             </button>
             <button
-              className="flex h-[22px] w-full items-center justify-between border-0 bg-transparent p-0 text-left text-[16px] leading-[19px] text-white"
+              className="flex min-h-[34px] w-full items-center justify-between rounded-[7px] border border-white/25 bg-white/10 px-3 text-left text-[14px] leading-[18px] text-white transition-colors hover:bg-white/16"
               type="button"
             >
               <span>Fazer login com o Google</span>
-              <span className="text-[30px] leading-none">G</span>
+              <span className="text-[24px] leading-none">G</span>
             </button>
           </div>
 
           <div className="mt-[21px] flex flex-col gap-[10px]">
             <input
-              className="h-[42px] w-full rounded-[9px] border-0 bg-white px-[13px] text-left text-[13px] leading-[16px] text-[#03557b] outline-none placeholder:text-[#03557b]"
+              className={inputClassName}
               autoComplete="email"
               onChange={(event) => setEmail(event.target.value)}
               required
@@ -75,7 +92,7 @@ const TelaLogin: FunctionComponent = () => {
               value={email}
             />
             <input
-              className="h-[42px] w-full rounded-[9px] border-0 bg-white px-[13px] text-left text-[13px] leading-[16px] text-[#03557b] outline-none placeholder:text-[#03557b]"
+              className={inputClassName}
               autoComplete="current-password"
               onChange={(event) => setPassword(event.target.value)}
               required
@@ -85,13 +102,15 @@ const TelaLogin: FunctionComponent = () => {
             />
           </div>
 
-          {errorMessage ? (
-            <p className="mt-[12px] text-[12px] leading-[16px] text-[#ffd7d7]">{errorMessage}</p>
-          ) : null}
+          {errorMessage ? <p className="mt-[12px] text-[12px] leading-[16px] text-[#ffd7d7]">{errorMessage}</p> : null}
 
-          <Link className="mt-[10px] self-start text-[11px] leading-[14px] text-white no-underline" to="#">
+          <button
+            className="mt-[10px] self-start bg-transparent p-0 text-left text-[11px] leading-[14px] text-white"
+            onClick={() => void recoverPassword()}
+            type="button"
+          >
             Esqueci minha senha
-          </Link>
+          </button>
         </form>
 
         <button

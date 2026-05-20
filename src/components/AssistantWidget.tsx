@@ -46,6 +46,7 @@ const AssistantWidget = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const isAuthPath = location.pathname === "/login" || location.pathname === "/cadastro" || location.pathname === "/registro";
 
   const productContext = useMemo<AssistantProductContext[]>(
     () =>
@@ -132,7 +133,11 @@ const AssistantWidget = () => {
   };
 
   return (
-    <div className="fixed bottom-5 left-4 z-[80] font-['Montserrat',sans-serif] text-[#071735] sm:left-6">
+    <div
+      className={`fixed bottom-5 left-4 z-[80] font-['Montserrat',sans-serif] text-[#071735] sm:left-6 ${
+        isAuthPath ? "hidden md:block" : ""
+      }`}
+    >
       {isOpen ? (
         <section
           aria-label="Assistente Acesse+"

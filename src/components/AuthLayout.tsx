@@ -1,17 +1,20 @@
+import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
 import { AppHeader } from "./AppHeader";
 
 type AuthLayoutProps = {
-  children: React.ReactNode;
+  children: ReactNode;
   firstToggleActive?: boolean;
 };
 
+type AccessibilityId = "libras" | "reader" | "font" | "light" | "translate";
+
 const accessibilityItems = [
-  { icon: "hand", label: "Ativar Libras", control: "toggle" },
-  { icon: "eye", label: "Ativar Leitor de Tela", control: "toggle" },
-  { icon: "zoom", label: "Aumentar Fonte", control: "font" },
-  { icon: "sun", label: "Modo Claro", control: "toggle" },
-  { icon: "translate", label: "Tradução Automatica", control: "toggle" },
-];
+  { control: "toggle", icon: "hand", id: "libras", label: "Ativar Libras" },
+  { control: "toggle", icon: "eye", id: "reader", label: "Ativar Leitor de Tela" },
+  { control: "font", icon: "zoom", id: "font", label: "Aumentar Fonte" },
+  { control: "toggle", icon: "sun", id: "light", label: "Modo Claro" },
+  { control: "toggle", icon: "translate", id: "translate", label: "Tradução Automática" },
+] as const;
 
 export const AppleMark = () => (
   <svg width="24" height="28" viewBox="0 0 24 28" fill="none" aria-hidden="true">
@@ -37,10 +40,7 @@ const AccessIcon = ({ type }: { type: string }) => {
   if (type === "eye") {
     return (
       <svg width="27" height="27" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path
-          d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"
-          fill="#1b7d0c"
-        />
+        <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" fill="#1b7d0c" />
         <circle cx="12" cy="12" r="3" fill="#ebf9e9" />
       </svg>
     );
@@ -51,12 +51,7 @@ const AccessIcon = ({ type }: { type: string }) => {
       <svg width="27" height="27" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <circle cx="10" cy="10" r="6.5" stroke="#1b7d0c" strokeWidth="2" />
         <path d="M15 15l6 6" stroke="#1b7d0c" strokeLinecap="round" strokeWidth="2" />
-        <path
-          d="M10 6v8M6 10h8"
-          stroke="#1b7d0c"
-          strokeLinecap="round"
-          strokeWidth="2"
-        />
+        <path d="M10 6v8M6 10h8" stroke="#1b7d0c" strokeLinecap="round" strokeWidth="2" />
       </svg>
     );
   }
@@ -90,30 +85,48 @@ const AccessIcon = ({ type }: { type: string }) => {
   );
 };
 
-const Toggle = ({ active = false }: { active?: boolean }) => (
-  <button
-    aria-pressed={active}
-    className={`flex h-[24px] w-[62px] items-center rounded-full border border-[#1b7d0c] p-[2px] ${
-      active ? "justify-end bg-[#146f91]" : "justify-start bg-white"
-    }`}
-    type="button"
-  >
-    <span className="h-[20px] w-[20px] rounded-full bg-[#1b7d0c] shadow-sm" />
-  </button>
-);
+const Toggle = ({ active = false, label, onToggle }: { active?: boolean; label: string; onToggle: () => void }) => {
+  const actionLabel = label.replace(/^Ativar\s+/i, "");
 
-const FontControl = () => (
-  <span className="flex items-center justify-end gap-[6px]">
+  return (
+    <button
+      aria-label={`${active ? "Desativar" : "Ativar"} ${actionLabel}`}
+      aria-pressed={active}
+      className={`flex h-[26px] w-[64px] items-center rounded-full border border-[#1b7d0c] p-[2px] transition-colors ${
+        active ? "justify-end bg-[#167307]" : "justify-start bg-white"
+      }`}
+      onClick={onToggle}
+      type="button"
+    >
+      <span className={`h-[20px] w-[20px] rounded-full shadow-sm ${active ? "bg-white" : "bg-[#1b7d0c]"}`} />
+    </button>
+  );
+};
+
+const FontControl = ({
+  fontScale,
+  onDecrease,
+  onIncrease,
+}: {
+  fontScale: number;
+  onDecrease: () => void;
+  onIncrease: () => void;
+}) => (
+  <span className="flex items-center justify-end gap-[6px]" aria-label={`Fonte em ${fontScale}%`}>
     <button
       aria-label="Diminuir fonte"
-      className="flex h-[29px] w-[29px] items-center justify-center rounded-full border-0 bg-[#1b7d0c] p-0 text-[24px] leading-none text-white"
+      className="flex h-[29px] w-[29px] items-center justify-center rounded-full border-0 bg-[#1b7d0c] p-0 text-[24px] leading-none text-white disabled:cursor-not-allowed disabled:bg-[#9dbb99]"
+      disabled={fontScale <= 90}
+      onClick={onDecrease}
       type="button"
     >
       -
     </button>
     <button
       aria-label="Aumentar fonte"
-      className="flex h-[29px] w-[29px] items-center justify-center rounded-full border-2 border-[#1b7d0c] bg-white p-0 text-[27px] leading-none text-[#1b7d0c]"
+      className="flex h-[29px] w-[29px] items-center justify-center rounded-full border-2 border-[#1b7d0c] bg-white p-0 text-[27px] leading-none text-[#1b7d0c] disabled:cursor-not-allowed disabled:border-[#9dbb99] disabled:text-[#9dbb99]"
+      disabled={fontScale >= 120}
+      onClick={onIncrease}
       type="button"
     >
       +
@@ -121,31 +134,69 @@ const FontControl = () => (
   </span>
 );
 
-const AccessibilityPanel = ({ firstToggleActive = false }: { firstToggleActive?: boolean }) => (
-  <aside className="relative min-w-0 overflow-hidden bg-[#edfdec] px-[clamp(42px,10.8vw,157px)] pb-10 pt-[34px] text-[#1b7d0c]">
-    <span className="absolute -left-[63px] -top-[62px] h-[357px] w-[357px] rounded-full bg-[#d3ebcf]" />
-    <span className="absolute right-[36px] top-[86px] h-[210px] w-[210px] rounded-full bg-[#d3ebcf]" />
-    <span className="absolute bottom-[136px] left-[117px] h-[124px] w-[124px] rounded-full bg-[#d3ebcf]" />
-    <span className="absolute -bottom-[170px] right-[1px] h-[315px] w-[315px] rounded-full bg-[#d3ebcf]" />
+const AccessibilityPanel = ({
+  compact = false,
+  fontScale,
+  onDecreaseFont,
+  onIncreaseFont,
+  onToggle,
+  toggles,
+}: {
+  compact?: boolean;
+  fontScale: number;
+  onDecreaseFont: () => void;
+  onIncreaseFont: () => void;
+  onToggle: (id: AccessibilityId) => void;
+  toggles: Record<AccessibilityId, boolean>;
+}) => (
+  <aside
+    className={
+      compact
+        ? "relative min-w-0 overflow-hidden rounded-[10px] border border-[#d7e8d4] bg-[#edfdec]/95 p-4 text-[#1b7d0c] shadow-[0_10px_28px_rgba(0,0,0,0.18)]"
+        : "relative min-w-0 overflow-hidden bg-[#edfdec] px-[clamp(42px,10.8vw,157px)] pb-10 pt-[34px] text-[#1b7d0c]"
+    }
+  >
+    {!compact ? (
+      <>
+        <span className="absolute -left-[63px] -top-[62px] h-[357px] w-[357px] rounded-full bg-[#d3ebcf]" />
+        <span className="absolute right-[36px] top-[86px] h-[210px] w-[210px] rounded-full bg-[#d3ebcf]" />
+        <span className="absolute bottom-[136px] left-[117px] h-[124px] w-[124px] rounded-full bg-[#d3ebcf]" />
+        <span className="absolute -bottom-[170px] right-[1px] h-[315px] w-[315px] rounded-full bg-[#d3ebcf]" />
+      </>
+    ) : null}
 
     <div className="relative z-10 mx-auto max-w-[411px]">
-      <img
-        className="mx-auto h-[96px] w-[340px] max-w-full object-contain drop-shadow-[0_4px_5px_rgba(0,0,0,0.35)]"
-        alt="Acesse+"
-        src="/Group-561.svg"
-      />
-      <p className="mt-[58px] text-[17px] leading-[24px]">
-        Descubra tecnologias acessíveis, compare soluções inclusivas, receba
-        recomendações personalizadas e encontre autonomia com mais segurança.
-      </p>
+      {!compact ? (
+        <>
+          <img
+            className="mx-auto h-[96px] w-[340px] max-w-full object-contain drop-shadow-[0_4px_5px_rgba(0,0,0,0.35)]"
+            alt="Acesse+"
+            src="/Group-561.svg"
+          />
+          <p className="mt-[58px] text-[17px] leading-[24px]">
+            Descubra tecnologias acessíveis, compare soluções inclusivas, receba recomendações personalizadas e encontre autonomia
+            com mais segurança.
+          </p>
+        </>
+      ) : null}
 
-      <h1 className="mt-[50px] text-center text-[22px] leading-[27px]">
+      <h1 className={compact ? "text-[15px] leading-[20px]" : "mt-[50px] text-center text-[22px] leading-[27px]"}>
         Melhore a sua experiência!
       </h1>
+      {compact ? <p className="mt-1 text-[11px] leading-[16px] text-[#355e3a]">Ajustes rápidos para esta tela.</p> : null}
 
-      <div className="mx-auto mt-[36px] flex w-[277px] max-w-full flex-col gap-[24px]">
-        {accessibilityItems.map((item, index) => (
-          <div className="grid grid-cols-[32px_1fr_64px] items-center gap-[19px]" key={item.label}>
+      <div
+        className={
+          compact
+            ? "mt-4 flex max-h-[220px] flex-col gap-3 overflow-y-auto pr-1"
+            : "mx-auto mt-[36px] flex w-[277px] max-w-full flex-col gap-[24px]"
+        }
+      >
+        {accessibilityItems.map((item) => (
+          <div
+            className={compact ? "grid grid-cols-[30px_1fr_64px] items-center gap-2" : "grid grid-cols-[32px_1fr_64px] items-center gap-[19px]"}
+            key={item.label}
+          >
             <span
               className={
                 item.icon === "hand"
@@ -155,11 +206,11 @@ const AccessibilityPanel = ({ firstToggleActive = false }: { firstToggleActive?:
             >
               <AccessIcon type={item.icon} />
             </span>
-            <span className="whitespace-nowrap text-[13px] leading-[16px]">{item.label}</span>
+            <span className="min-w-0 text-[12px] leading-[16px] sm:whitespace-nowrap sm:text-[13px]">{item.label}</span>
             {item.control === "font" ? (
-              <FontControl />
+              <FontControl fontScale={fontScale} onDecrease={onDecreaseFont} onIncrease={onIncreaseFont} />
             ) : (
-              <Toggle active={index === 0 && firstToggleActive} />
+              <Toggle active={toggles[item.id]} label={item.label} onToggle={() => onToggle(item.id)} />
             )}
           </div>
         ))}
@@ -168,24 +219,71 @@ const AccessibilityPanel = ({ firstToggleActive = false }: { firstToggleActive?:
   </aside>
 );
 
-export const AuthLayout = ({ children, firstToggleActive = false }: AuthLayoutProps) => (
-  <main className="min-h-screen w-full overflow-x-hidden bg-[#edfdec] font-['Montserrat',sans-serif] text-[#071735] [&_h1]:m-0 [&_h2]:m-0 [&_h3]:m-0 [&_p]:m-0">
-    <AppHeader showNav={false} />
-    <section className="grid min-h-[801px] w-full grid-cols-1 lg:grid-cols-[minmax(520px,51.2%)_minmax(430px,1fr)]">
-      <div className="hidden lg:block">
-        <AccessibilityPanel firstToggleActive={firstToggleActive} />
-      </div>
-      <section className="relative flex min-w-0 items-center justify-center overflow-hidden bg-black px-4 py-8 sm:px-8 sm:py-12">
-        <img
-          className="absolute inset-0 h-full w-full object-cover"
-          alt=""
-          src="/image-132@2x.png"
-        />
-        <div className="absolute inset-0 bg-black/65" />
-        <div className="relative z-10 flex w-full justify-center lg:-translate-y-[32px]">
-          {children}
+export const AuthLayout = ({ children, firstToggleActive = false }: AuthLayoutProps) => {
+  const [fontScale, setFontScale] = useState(100);
+  const [toggles, setToggles] = useState<Record<AccessibilityId, boolean>>({
+    font: false,
+    libras: firstToggleActive,
+    light: false,
+    reader: false,
+    translate: false,
+  });
+  const scaledStyle = useMemo<CSSProperties>(() => ({ zoom: fontScale / 100 }), [fontScale]);
+
+  useEffect(() => {
+    setToggles((current) => ({ ...current, libras: firstToggleActive }));
+  }, [firstToggleActive]);
+
+  const toggleAccessibility = (id: AccessibilityId) => {
+    if (id === "font") {
+      return;
+    }
+
+    setToggles((current) => ({ ...current, [id]: !current[id] }));
+  };
+
+  const increaseFont = () => {
+    setFontScale((current) => Math.min(120, current + 5));
+  };
+
+  const decreaseFont = () => {
+    setFontScale((current) => Math.max(90, current - 5));
+  };
+
+  return (
+    <main className="min-h-screen w-full overflow-x-hidden bg-[#edfdec] font-['Montserrat',sans-serif] text-[#071735] [&_h1]:m-0 [&_h2]:m-0 [&_h3]:m-0 [&_p]:m-0">
+      <AppHeader showNav={false} />
+      <section className="grid min-h-[801px] w-full grid-cols-1 lg:grid-cols-[minmax(520px,51.2%)_minmax(430px,1fr)]">
+        <div className="hidden lg:block" style={scaledStyle}>
+          <AccessibilityPanel
+            fontScale={fontScale}
+            onDecreaseFont={decreaseFont}
+            onIncreaseFont={increaseFont}
+            onToggle={toggleAccessibility}
+            toggles={toggles}
+          />
         </div>
+        <section className="relative flex min-w-0 flex-col items-center justify-center overflow-hidden bg-black px-4 py-8 sm:px-8 sm:py-12">
+          <img className="absolute inset-0 h-full w-full object-cover" alt="" src="/image-132@2x.png" />
+          <div className={`absolute inset-0 ${toggles.light ? "bg-black/42" : "bg-black/65"}`} />
+          <div className="relative z-10 mb-5 block w-full max-w-[360px] lg:hidden">
+            <AccessibilityPanel
+              compact
+              fontScale={fontScale}
+              onDecreaseFont={decreaseFont}
+              onIncreaseFont={increaseFont}
+              onToggle={toggleAccessibility}
+              toggles={toggles}
+            />
+          </div>
+          <div className="relative z-10 flex w-full justify-center lg:-translate-y-[32px]" style={scaledStyle}>
+            {children}
+          </div>
+          <p className="sr-only" aria-live="polite">
+            Fonte em {fontScale}%.
+          </p>
+        </section>
       </section>
-    </section>
-  </main>
-);
+    </main>
+  );
+};

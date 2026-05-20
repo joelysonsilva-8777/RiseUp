@@ -4,26 +4,32 @@ import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 const heroSlides = [
   {
     alt: "Tecnologia acessivel em destaque",
+    mobileSrc: "/image-132@2xMobile.png",
     src: "/image-132@2x.png",
   },
   {
     alt: "Produto acessivel em destaque 1",
+    mobileSrc: "/ArchiveSlideMobile(1).png",
     src: "/ArchiveSlide(1).png",
   },
   {
     alt: "Produto acessivel em destaque 2",
+    mobileSrc: "/ArchiveSlideMobile(2).png",
     src: "/ArchiveSlide(2).png",
   },
   {
     alt: "Produto acessivel em destaque 3",
+    mobileSrc: "/ArchiveSlideMobile(3).png",
     src: "/ArchiveSlide(3).png",
   },
   {
     alt: "Produto acessivel em destaque 4",
+    mobileSrc: "/ArchiveSlideMobile(4).png",
     src: "/ArchiveSlide(4).png",
   },
   {
     alt: "Produto acessivel em destaque 5",
+    mobileSrc: "/ArchiveSlideMobile(5).png",
     src: "/ArchiveSlide(5).png",
   },
 ];
@@ -63,7 +69,7 @@ const HeroSection = () => {
   return (
     <section
       aria-label="Destaques da Acesse+"
-      className="relative min-h-[320px] w-full overflow-visible bg-black sm:h-[390px]"
+      className="relative h-[300px] w-full overflow-visible bg-[#f3f3f3] sm:h-[430px] lg:h-[480px] xl:h-[520px]"
       onMouseEnter={() => {
         setIsHovering(true);
         setShouldHold(true);
@@ -75,20 +81,37 @@ const HeroSection = () => {
     >
       <div className="absolute inset-0 overflow-hidden">
         {heroSlides.map((slide, index) => (
-          <img
-            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ease-out ${
+          <div
+            className={`absolute inset-0 block h-full w-full bg-[#f3f3f3] transition-opacity duration-700 ease-out ${
               index === activeSlide ? "opacity-100" : "opacity-0"
             }`}
-            alt={slide.alt}
             aria-hidden={index !== activeSlide}
-            draggable={false}
             key={slide.src}
-            src={slide.src}
-          />
+          >
+            <img
+              className="h-full w-full object-cover sm:hidden"
+              alt={slide.alt}
+              draggable={false}
+              onError={(event) => {
+                const fallbackSrc = new URL(slide.src, window.location.origin).href;
+
+                if (event.currentTarget.src !== fallbackSrc) {
+                  event.currentTarget.src = fallbackSrc;
+                }
+              }}
+              src={slide.mobileSrc}
+            />
+            <img
+              className="hidden h-full w-full object-cover sm:block"
+              alt={slide.alt}
+              draggable={false}
+              src={slide.src}
+            />
+          </div>
         ))}
       </div>
 
-      <div className="absolute inset-0 bg-black/25" />
+      <div className="absolute inset-0 bg-black/10 sm:bg-black/25" />
       <div className="absolute inset-x-0 bottom-0 z-[1] h-[140px] bg-gradient-to-b from-transparent via-[#f3f3f3]/45 to-[#f3f3f3]" />
 
       <button
@@ -110,7 +133,7 @@ const HeroSection = () => {
       </button>
 
       {activeSlide === 0 ? (
-        <div className="relative z-10 mx-auto flex min-h-[230px] w-full max-w-[720px] flex-col items-center px-4 pt-[24px] text-center text-white sm:px-0">
+        <div className="relative z-10 mx-auto flex min-h-[230px] w-full max-w-[720px] flex-col items-center px-4 pt-[24px] text-center text-white sm:px-0 sm:pt-[34px] lg:pt-[42px]">
           <p className="text-[22px] leading-[28px] sm:text-[30px] sm:leading-[36px]">Bem-vindo a</p>
           <img className="mt-2 h-[54px] w-[220px] object-contain sm:h-[70px] sm:w-[254px]" alt="Acesse+" src="/Group-561.svg" />
           <p className="mt-4 max-w-[485px] text-[14px] leading-[20px] sm:mt-5 sm:text-[16px] sm:leading-[23px]">

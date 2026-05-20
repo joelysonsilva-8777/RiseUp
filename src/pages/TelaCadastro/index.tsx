@@ -1,10 +1,13 @@
-import { type FunctionComponent, useEffect, useState } from "react";
+import { type FunctionComponent, type ReactNode, useEffect, useState } from "react";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import { Link, useNavigate } from "react-router-dom";
 import { AppleMark, AuthLayout } from "../../components/AuthLayout";
 import { useAuth } from "../../context/AuthContext";
 import { auth, firestore } from "../../firebase/firebase";
+
+const inputClassName =
+  "h-[42px] w-full rounded-[9px] border-0 bg-white px-[13px] text-left text-[13px] leading-[16px] text-[#03557b] outline-none placeholder:text-[#03557b]";
 
 const SelectField = ({
   id,
@@ -42,14 +45,41 @@ const SelectField = ({
       fill="none"
       aria-hidden="true"
     >
-      <path
-        d="m6 9 6 6 6-6"
-        stroke="#111"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="3"
-      />
+      <path d="m6 9 6 6 6-6" stroke="#111" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" />
     </svg>
+  </label>
+);
+
+const SocialButton = ({ children, icon }: { children: string; icon: ReactNode }) => (
+  <button
+    className="flex min-h-[34px] w-full items-center justify-between rounded-[7px] border border-white/25 bg-white/10 px-3 text-left text-[14px] leading-[18px] text-white transition-colors hover:bg-white/16"
+    type="button"
+  >
+    <span>{children}</span>
+    <span className="text-white">{icon}</span>
+  </button>
+);
+
+const AccountTypeOption = ({
+  active,
+  label,
+  onChange,
+  value,
+}: {
+  active: boolean;
+  label: string;
+  onChange: () => void;
+  value: string;
+}) => (
+  <label
+    className={`flex min-h-[44px] cursor-pointer items-center justify-center rounded-[9px] border px-3 text-center text-[13px] leading-[16px] transition-colors ${
+      active
+        ? "border-white bg-white text-[#167307] shadow-[0_2px_8px_rgba(0,0,0,0.16)]"
+        : "border-white/55 bg-white/10 text-white hover:bg-white/18"
+    }`}
+  >
+    <input checked={active} className="sr-only" name="tipo" onChange={onChange} type="radio" value={value} />
+    {label}
   </label>
 );
 
@@ -92,12 +122,12 @@ const TelaCadastro: FunctionComponent = () => {
       await setDoc(
         doc(firestore, "users", credential.user.uid),
         {
-          fullName,
-          email,
-          disabilityType,
-          preferredActivity,
           accountType,
           createdAt: serverTimestamp(),
+          disabilityType,
+          email,
+          fullName,
+          preferredActivity,
           updatedAt: serverTimestamp(),
         },
         { merge: true }
@@ -106,11 +136,11 @@ const TelaCadastro: FunctionComponent = () => {
       await setDoc(
         doc(firestore, "sellerProfiles", credential.user.uid),
         {
+          createdAt: serverTimestamp(),
           displayName: fullName,
           email,
           photoURL: "",
           sellerId: credential.user.uid,
-          createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         },
         { merge: true }
@@ -127,35 +157,21 @@ const TelaCadastro: FunctionComponent = () => {
   return (
     <AuthLayout>
       <div className="flex w-full max-w-[360px] flex-col items-center text-center">
-        <h1 className="mb-[27px] text-[36px] leading-[43px] text-white">Cadastrar</h1>
+        <h1 className="mb-[27px] text-[34px] leading-[40px] text-white sm:text-[36px] sm:leading-[43px]">Cadastrar</h1>
 
         <form
-          className="flex w-[320px] flex-col rounded-[9px] bg-[#1d7b0c] px-[16px] pb-[22px] pt-[22px]"
+          className="flex w-full max-w-[320px] flex-col rounded-[9px] bg-[#1d7b0c] px-[16px] pb-[22px] pt-[22px]"
           id="cadastro-form"
           onSubmit={handleSubmit}
         >
-          <div className="flex flex-col gap-[13px] border-b border-white/80 pb-[17px] text-white">
-            <button
-              className="flex h-[22px] w-full items-center justify-between border-0 bg-transparent p-0 text-left text-[16px] leading-[19px] text-white"
-              type="button"
-            >
-              <span>Fazer login com o iCloud</span>
-              <span className="text-white">
-                <AppleMark />
-              </span>
-            </button>
-            <button
-              className="flex h-[22px] w-full items-center justify-between border-0 bg-transparent p-0 text-left text-[16px] leading-[19px] text-white"
-              type="button"
-            >
-              <span>Fazer login com o Google</span>
-              <span className="text-[30px] leading-none">G</span>
-            </button>
+          <div className="flex flex-col gap-[10px] border-b border-white/80 pb-[17px] text-white">
+            <SocialButton icon={<AppleMark />}>Fazer login com o iCloud</SocialButton>
+            <SocialButton icon={<span className="text-[24px] leading-none">G</span>}>Fazer login com o Google</SocialButton>
           </div>
 
           <div className="mt-[21px] flex flex-col gap-[8px]">
             <input
-              className="h-[42px] w-full rounded-[9px] border-0 bg-white px-[13px] text-left text-[13px] leading-[16px] text-[#03557b] outline-none placeholder:text-[#03557b]"
+              className={inputClassName}
               autoComplete="name"
               onChange={(event) => setFullName(event.target.value)}
               required
@@ -164,7 +180,7 @@ const TelaCadastro: FunctionComponent = () => {
               value={fullName}
             />
             <input
-              className="h-[42px] w-full rounded-[9px] border-0 bg-white px-[13px] text-left text-[13px] leading-[16px] text-[#03557b] outline-none placeholder:text-[#03557b]"
+              className={inputClassName}
               autoComplete="email"
               onChange={(event) => setEmail(event.target.value)}
               required
@@ -173,7 +189,7 @@ const TelaCadastro: FunctionComponent = () => {
               value={email}
             />
             <input
-              className="h-[42px] w-full rounded-[9px] border-0 bg-white px-[13px] text-left text-[13px] leading-[16px] text-[#03557b] outline-none placeholder:text-[#03557b]"
+              className={inputClassName}
               autoComplete="new-password"
               onChange={(event) => setPassword(event.target.value)}
               required
@@ -198,36 +214,24 @@ const TelaCadastro: FunctionComponent = () => {
           </div>
 
           <fieldset className="mt-[16px] border-0 p-0 text-left text-white">
-            <legend className="mb-[11px] p-0 text-[13px] leading-[16px]">
-              Você é empresa ou usuário?
-            </legend>
-            <div className="flex gap-[17px]">
-              <label className="flex items-center gap-[8px] text-[13px] leading-[16px]">
-                <input
-                  checked={accountType === "Empresa"}
-                  className="h-[13px] w-[13px] accent-white"
-                  name="tipo"
-                  onChange={() => setAccountType("Empresa")}
-                  type="radio"
-                />
-                Empresa
-              </label>
-              <label className="flex items-center gap-[8px] text-[13px] leading-[16px]">
-                <input
-                  checked={accountType === "Usuário"}
-                  className="h-[13px] w-[13px] accent-white"
-                  name="tipo"
-                  onChange={() => setAccountType("Usuário")}
-                  type="radio"
-                />
-                Usuário
-              </label>
+            <legend className="mb-[11px] p-0 text-[13px] leading-[16px]">Você é empresa ou usuário?</legend>
+            <div className="grid grid-cols-2 gap-2">
+              <AccountTypeOption
+                active={accountType === "Empresa"}
+                label="Empresa"
+                onChange={() => setAccountType("Empresa")}
+                value="Empresa"
+              />
+              <AccountTypeOption
+                active={accountType === "Usuário"}
+                label="Usuário"
+                onChange={() => setAccountType("Usuário")}
+                value="Usuário"
+              />
             </div>
           </fieldset>
 
-          {errorMessage ? (
-            <p className="mt-[12px] text-[12px] leading-[16px] text-[#ffd7d7]">{errorMessage}</p>
-          ) : null}
+          {errorMessage ? <p className="mt-[12px] text-[12px] leading-[16px] text-[#ffd7d7]">{errorMessage}</p> : null}
         </form>
 
         <button
